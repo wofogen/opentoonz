@@ -77,6 +77,8 @@ public:
   TimeShuffleFx()
       : TRasterFx(), m_frame(0), m_timeRegion(), m_cellColumn(nullptr) {
     addInputPort("source", m_port);
+
+    enableComputeInFloat(true);
   }
   ~TimeShuffleFx() {}
 
@@ -141,6 +143,11 @@ public:
                     const TRenderSettings &info) override {
     if (m_port.isConnected())
       TRasterFxP(m_port.getFx())->dryCompute(rect, getLevelFrame(frame), info);
+  }
+
+  bool toBeComputedInLinearColorSpace(bool settingsIsLinear,
+                                      bool tileIsLinear) const override {
+    return tileIsLinear;
   }
 
 private:
@@ -356,7 +363,7 @@ static bool getColumnPlacement(PlacedFx &pf, TXsheet *xsh, double row, int col,
 }
 
 //-------------------------------------------------------------------
-/*-- Objectの位置を得る --*/
+/*-- Obtain the position of the Object --*/
 static bool getStageObjectPlacement(TAffine &aff, TXsheet *xsh, double row,
                                     TStageObjectId &id, bool isPreview) {
   TStageObject *pegbar = xsh->getStageObjectTree()->getStageObject(id, false);
@@ -381,7 +388,7 @@ static bool getStageObjectPlacement(TAffine &aff, TXsheet *xsh, double row,
   return isVisible;
 }
 
-/*-- typeとindexからStageObjectIdを得る --*/
+/*-- Get StageObjectId from type and index --*/
 namespace {
 TStageObjectId getMotionObjectId(MotionObjectType type, int index) {
   switch (type) {
@@ -418,7 +425,7 @@ static TPointD getColumnSpeed(TXsheet *xsh, double row, int col,
   const double h = 0.001;
   getColumnPlacement(aff, xsh, row + h, col, isPreview);
 
-  /*-- カラムと、カメラの動きに反応 --*/
+  /*-- Reacts to columns and camera movement --*/
   TStageObjectId cameraId;
   if (isPreview)
     cameraId = xsh->getStageObjectTree()->getCurrentPreviewCameraId();
@@ -438,15 +445,15 @@ static TPointD getColumnSpeed(TXsheet *xsh, double row, int col,
 }
 
 //-------------------------------------------------------------------
-/*-- オブジェクトの軌跡を、基準点との差分で得る
-        objectId: 移動の参考にするオブジェクト。自分自身の場合はNoneId
+/*-- Obtain the trajectory of an object by the difference from the reference
+point objectId: The reference object for the move. NoneId for itself.
 --*/
 static QList<TPointD> getColumnMotionPoints(TXsheet *xsh, double row, int col,
                                             TStageObjectId &objectId,
                                             bool isPreview, double shutterStart,
                                             double shutterEnd,
                                             int traceResolution) {
-  /*-- 前後フレームが共に０なら空のリストを返す --*/
+  /*-- Returns an empty list if the previous and next frames are both zero. --*/
   if (shutterStart == 0.0 && shutterEnd == 0.0) return QList<TPointD>();
 
   /*-- 現在のカメラを得る --*/
@@ -965,11 +972,16 @@ PlacedFx FxBuilder::makePF(TLevelColumnFx *lcfx) {
     // Apply column's color filter and semi-transparency for rendering
     TXshLevelColumn *column = lcfx->getColumn();
     if (m_scene->getProperties()->isColumnColorFilterOnRenderEnabled() &&
-        (column->getFilterColorId() != TXshColumn::FilterNone ||
+        (column->getColorFilterId() != 0 ||  // None
          (column->isCamstandVisible() && column->getOpacity() != 255))) {
-      TPixel32 colorScale = column->getFilterColor();
-      colorScale.m        = column->getOpacity();
-      pf.m_fx             = TFxUtil::makeColumnColorFilter(pf.m_fx, colorScale);
+      TPixel32 colorScale = m_scene->getProperties()->getColorFilterColor(
+          column->getColorFilterId());
+      if (colorScale != TPixel::Black || column->getOpacity() != 255) {
+        colorScale.m = (typename TPixel32::Channel)((int)colorScale.m *
+                                                    (int)column->getOpacity() /
+                                                    TPixel32::maxChannelValue);
+        pf.m_fx      = TFxUtil::makeColumnColorFilter(pf.m_fx, colorScale);
+      }
     }
 
     return pf;
@@ -1018,12 +1030,13 @@ PlacedFx FxBuilder::makePF(TZeraryColumnFx *zcfx) {
   PlacedFx pf;
   pf.m_columnIndex = zcfx->getColumn()->getIndex();
 
-  // Add the column placement NaAffineFx
-  if (!getColumnPlacement(pf, m_xsh, m_frame, pf.m_columnIndex, m_isPreview))
-    return PlacedFx();
-
   // if the cell is empty, only inherits its placement
-  if (cell.isEmpty()) return pf;
+  if (cell.isEmpty()) {
+    // Add the column placement NaAffineFx
+    if (!getColumnPlacement(pf, m_xsh, m_frame, pf.m_columnIndex, m_isPreview))
+      return PlacedFx();
+    return pf;
+  }
 
   // set m_fx only when the current cell is not empty
   pf.m_fx =
@@ -1086,7 +1099,11 @@ PlacedFx FxBuilder::makePF(TZeraryColumnFx *zcfx) {
     }
   }
 
-  return pf;
+  // Add the column placement NaAffineFx
+  if (getColumnPlacement(pf, m_xsh, m_frame, pf.m_columnIndex, m_isPreview))
+    return pf;
+  else
+    return PlacedFx();
 }
 
 //-------------------------------------------------------------------

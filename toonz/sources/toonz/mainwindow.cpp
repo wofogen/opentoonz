@@ -362,13 +362,8 @@ void Room::load(const TFilePath &fp) {
 // MainWindow
 //-----------------------------------------------------------------------------
 
-#if QT_VERSION >= 0x050500
 MainWindow::MainWindow(const QString &argumentLayoutFileName, QWidget *parent,
                        Qt::WindowFlags flags)
-#else
-MainWindow::MainWindow(const QString &argumentLayoutFileName, QWidget *parent,
-                       Qt::WFlags flags)
-#endif
     : QMainWindow(parent, flags)
     , m_saveSettingsOnQuit(true)
     , m_oldRoomIndex(0)
@@ -467,6 +462,9 @@ centralWidget->setLayout(centralWidgetLayout);*/
   if (TSystem::doesExistFileOrLevel(TFilePath(ffmpegCachePath))) {
     TSystem::rmDirTree(TFilePath(ffmpegCachePath));
   }
+
+  connect(TApp::instance(), SIGNAL(activeViewerChanged()), this,
+          SLOT(onActiveViewerChanged()));
 }
 
 //-----------------------------------------------------------------------------
@@ -727,7 +725,7 @@ Room *MainWindow::createCleanupRoom() {
     ComboViewerPanel *cvp = qobject_cast<ComboViewerPanel *>(viewer);
     if (cvp)
       // hide all parts
-      cvp->setVisiblePartsFlag(CVPARTS_None);
+      cvp->setVisiblePartsFlag(VPPARTS_None);
   }
 
   // CleanupSettings
@@ -766,7 +764,7 @@ Room *MainWindow::createPltEditRoom() {
     layout->dockItem(viewer);
 
     ComboViewerPanel *cvp = qobject_cast<ComboViewerPanel *>(viewer);
-    if (cvp) cvp->setVisiblePartsFlag(CVPARTS_TOOLBAR | CVPARTS_TOOLOPTIONS);
+    if (cvp) cvp->setVisiblePartsFlag(VPPARTS_TOOLBAR | VPPARTS_TOOLOPTIONS);
   }
 
   // Palette
@@ -1319,6 +1317,27 @@ void MainWindow::onUpdateCheckerDone(bool error) {
   disconnect(m_updateChecker);
   m_updateChecker->deleteLater();
 }
+
+//-----------------------------------------------------------------------------
+
+void MainWindow::onActiveViewerChanged() {
+  // sync the command state to the button state of the activated viewer
+  SceneViewer *activeViewer = TApp::instance()->getActiveViewer();
+  if (!activeViewer) return;
+  BaseViewerPanel *bvp = qobject_cast<BaseViewerPanel *>(
+      activeViewer->parentWidget()->parentWidget());
+  if (!bvp) return;
+  bool prev, subCamPrev;
+  bvp->getPreviewButtonStates(prev, subCamPrev);
+
+  CommandManager::instance()
+      ->getAction(MI_ToggleViewerPreview)
+      ->setChecked(prev);
+  CommandManager::instance()
+      ->getAction(MI_ToggleViewerSubCameraPreview)
+      ->setChecked(subCamPrev);
+}
+
 //-----------------------------------------------------------------------------
 
 void MainWindow::closeEvent(QCloseEvent *event) {
@@ -1373,6 +1392,14 @@ QAction *MainWindow::createAction(const char *id, const char *name,
                                   const QString &defaultShortcut,
                                   CommandType type, const char *iconSVGName) {
   QAction *action = new DVAction(tr(name), this);
+
+  // For "edit" category menu commands may behave various function
+  // according to the current selection.
+  // Now the command name can be adjusted on switching the selection.
+  // Here we explicitly register the default text in order to recover the
+  // command name if the selection does not specify the alternative command
+  // name.
+  if (type == MenuEditCommandType) action->setIconText(tr(name));
 
 #if !defined(_WIN32)
   bool visible = Preferences::instance()->getBoolValue(showIconsInMenu);
@@ -1686,7 +1713,8 @@ void MainWindow::defineActions() {
   createMenuFileAction(MI_ImportMagpieFile,
                        QT_TR_NOOP("&Import Toonz Lip Sync File..."), "",
                        "dialogue_import");
-  createMenuFileAction(MI_NewProject, QT_TR_NOOP("&New Project..."), "", "new_project");
+  createMenuFileAction(MI_NewProject, QT_TR_NOOP("&New Project..."), "",
+                       "new_project");
   createMenuFileAction(MI_ProjectSettings, QT_TR_NOOP("&Project Settings..."),
                        "", "project_settings");
   createMenuFileAction(MI_SaveDefaultSettings,
@@ -1730,6 +1758,10 @@ void MainWindow::defineActions() {
                        QT_TR_NOOP("&Clear Recent Flipbook Image List"), "");
   createMenuFileAction(MI_ClearCacheFolder, QT_TR_NOOP("&Clear Cache Folder"),
                        "", "clear_cache");
+  createMenuFileAction(MI_ExportCurrentScene,
+                       QT_TR_NOOP("&Export Current Scene"), "");
+  createMenuFileAction(MI_ExportCameraTrack, QT_TR_NOOP("&Export Camera Track"),
+                       "");
 
   // Menu - Edit
 
@@ -1937,6 +1969,20 @@ void MainWindow::defineActions() {
                          QT_TR_NOOP("&Apply Auto Lip Sync to Column"),
                          "Ctrl+Alt+L", "dialogue");
 
+  createMenuXsheetAction(MI_ToggleTaggedFrame,
+                         QT_TR_NOOP("Toggle Navigation Tag"), "",
+                         "toggle_nav_tag");
+  createMenuXsheetAction(MI_NextTaggedFrame, QT_TR_NOOP("Next Tag"), "",
+                         "next_nav_tag");
+  createMenuXsheetAction(MI_PrevTaggedFrame, QT_TR_NOOP("Previous Tag"), "",
+                         "prev_nav_tag");
+  createMenuXsheetAction(MI_EditTaggedFrame, QT_TR_NOOP("Edit Tag"), "", "");
+  createMenuXsheetAction(MI_ClearTags, QT_TR_NOOP("Remove Tags"), "", "");
+  CommandManager::instance()->enable(MI_NextTaggedFrame, false);
+  CommandManager::instance()->enable(MI_PrevTaggedFrame, false);
+  CommandManager::instance()->enable(MI_EditTaggedFrame, false);
+  CommandManager::instance()->enable(MI_ClearTags, false);
+
   // Menu - Cells
 
   createMenuCellsAction(MI_MergeFrames, QT_TR_NOOP("&Merge"), "", "merge");
@@ -2039,6 +2085,12 @@ void MainWindow::defineActions() {
   createMenuRenderAction(MI_SavePreviewedFrames,
                          QT_TR_NOOP("&Save Previewed Frames"), "",
                          "save_previewed_frames");
+  createToggle(MI_ToggleViewerPreview, QT_TR_NOOP("Toggle Viewer Preview"), "",
+               false, MenuRenderCommandType, "pane_preview");
+  createToggle(MI_ToggleViewerSubCameraPreview,
+               QT_TR_NOOP("Toggle Viewer Sub-camera Preview"), "", false,
+               MenuRenderCommandType, "pane_subpreview");
+
   createRightClickMenuAction(MI_OpenPltGizmo, QT_TR_NOOP("&Palette Gizmo"), "",
                              "palettegizmo");
   createRightClickMenuAction(MI_EraseUnusedStyles,
@@ -2113,7 +2165,8 @@ void MainWindow::defineActions() {
 
   createMenuWindowsAction(MI_OpenFileBrowser, QT_TR_NOOP("&File Browser"), "",
                           "filebrowser");
-  createMenuWindowsAction(MI_OpenPreproductionBoard, QT_TR_NOOP("&Preproduction Board"), "",
+  createMenuWindowsAction(MI_OpenPreproductionBoard,
+                          QT_TR_NOOP("&Preproduction Board"), "",
                           "scenebrowser");
   createMenuWindowsAction(MI_OpenFileViewer, QT_TR_NOOP("&Flipbook"), "",
                           "flipbook");
@@ -2254,6 +2307,8 @@ void MainWindow::defineActions() {
                              "", "shift_keys_up");
   createRightClickMenuAction(MI_PasteNumbers, QT_TR_NOOP("&Paste Numbers"), "",
                              "paste_numbers");
+  createRightClickMenuAction(MI_PasteCellContent,
+                             QT_TR_NOOP("&Paste Cell Content"), "", "paste");
 
   createRightClickMenuAction(MI_Histogram, QT_TR_NOOP("&Histogram"), "");
   // MI_ViewerHistogram command is used as a proxy. It will be called when
@@ -2476,6 +2531,17 @@ void MainWindow::defineActions() {
                ToolCommandType);
   createAction(MI_TypeBold, QT_TR_NOOP("Type Tool - Bold"), "",
                ToolCommandType);
+
+  /*-- Paint Brush tool + mode swicthing shortcuts --*/
+  createAction(MI_PaintBrushNextMode, QT_TR_NOOP("Paint Brush - Next Mode"), "",
+               ToolCommandType);
+  createAction(MI_PaintBrushAreas, QT_TR_NOOP("Paint Brush - Areas"), "",
+               ToolCommandType, "paintbrush_mode_areas");
+  createAction(MI_PaintBrushLines, QT_TR_NOOP("Paint Brush - Lines"), "",
+               ToolCommandType, "paintbrush_mode_lines");
+  createAction(MI_PaintBrushLinesAndAreas,
+               QT_TR_NOOP("Paint Brush - Lines & Areas"), "", ToolCommandType,
+               "paintbrush_mode_lines_areas");
 
   /*-- Fill tool + type/mode switching shortcuts --*/
   createAction(MI_FillNextType, QT_TR_NOOP("Fill Tool - Next Type"), "",
@@ -2784,6 +2850,15 @@ void MainWindow::defineActions() {
       createToolOptionsAction("A_ToolOption_AutopaintLines",
                               QT_TR_NOOP("Fill Tool - Autopaint Lines"), "");
   menuAct->setIcon(createQIcon("fill_auto"));
+
+  createToolOptionsAction("A_ToolOption_FlipHorizontal",
+                          QT_TR_NOOP("Flip Selection/Object Horizontally"), "");
+  createToolOptionsAction("A_ToolOption_FlipVertical",
+                          QT_TR_NOOP("Flip Selection/Object Vertically"), "");
+  createToolOptionsAction("A_ToolOption_RotateLeft",
+                          QT_TR_NOOP("Rotate Selection/Object Left"), "");
+  createToolOptionsAction("A_ToolOption_RotateRight",
+                          QT_TR_NOOP("Rotate Selection/Object Right"), "");
 
   // Visualization
 

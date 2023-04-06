@@ -1108,6 +1108,7 @@ QMenuBar *StackedMenuBar::createFullMenuBar() {
   { addMenuItem(importMenu, MI_ImportMagpieFile); }
   QMenu *exportMenu = fileMenu->addMenu(tr("Export"));
   {
+    addMenuItem(exportMenu, MI_ExportCurrentScene);
     addMenuItem(exportMenu, MI_SoundTrack);
     addMenuItem(exportMenu, MI_ExportXDTS);
     addMenuItem(exportMenu, MI_ExportOCA);
@@ -1116,6 +1117,7 @@ QMenuBar *StackedMenuBar::createFullMenuBar() {
     addMenuItem(exportMenu, MI_StopMotionExportImageSequence);
 #endif
     addMenuItem(exportMenu, MI_ExportTvpJson);
+    addMenuItem(exportMenu, MI_ExportCameraTrack);
   }
   fileMenu->addSeparator();
   addMenuItem(fileMenu, MI_PrintXsheet);
