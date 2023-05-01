@@ -1,4 +1,4 @@
-set(VERSION 1.6)
+set(VERSION 1.7)
 
 set(MOC_HEADERS
     addfilmstripframespopup.h
@@ -66,6 +66,7 @@ set(MOC_HEADERS
     menubarpopup.h
     meshifypopup.h
     messagepanel.h
+    ocaio.h
     onionskinmaskgui.h
     outputsettingspopup.h
     overwritepopup.h
@@ -196,7 +197,6 @@ set(HEADERS
     ../include/orientation.h
     ../include/saveloadqsettings.h
     xdtsio.h
-    ocaio.h
     levelcommand.h
 # Tracker file
     ObjectTracker.h
