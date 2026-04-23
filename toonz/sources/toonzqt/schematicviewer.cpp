@@ -495,11 +495,7 @@ void SchematicSceneViewer::wheelEvent(QWheelEvent *me) {
          m_touchDevice == QTouchDevice::TouchScreen) ||
         m_gestureActive == false) {
       double factor = exp(delta * 0.001);
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
       changeScale(me->position().toPoint(), factor);
-#else
-      changeScale(me->pos(), factor);
-#endif
       m_panning = false;
     }
   }
@@ -838,7 +834,7 @@ SchematicViewer::SchematicViewer(QWidget *parent)
 
   // layout
   QVBoxLayout *mainLayout = new QVBoxLayout();
-  mainLayout->setMargin(0);
+  mainLayout->setContentsMargins(0, 0, 0, 0);
   mainLayout->setSpacing(0);
   {
     mainLayout->addWidget(m_viewer, 1);
@@ -846,7 +842,7 @@ SchematicViewer::SchematicViewer(QWidget *parent)
     QFrame *bottomFrame = new QFrame(this);
     bottomFrame->setObjectName("SchematicBottomFrame");
     QHBoxLayout *horizontalLayout = new QHBoxLayout();
-    horizontalLayout->setMargin(0);
+    horizontalLayout->setContentsMargins(0, 0, 0, 0);
     horizontalLayout->setSpacing(0);
     {
       horizontalLayout->addWidget(m_commonToolbar);
@@ -918,6 +914,9 @@ void SchematicViewer::getNodeColor(int ltype, QColor &nodeColor) {
     break;
   case MESH_XSHLEVEL:
     nodeColor = getMeshColumnColor();
+    break;
+  case META_XSHLEVEL:
+    nodeColor = getMetaColumnColor();
     break;
   case PLT_XSHLEVEL:
     nodeColor = getPaletteColumnColor();

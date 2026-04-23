@@ -109,7 +109,7 @@ ParamsPage::ParamsPage(QWidget *parent, ParamViewer *paramViewer)
   setFrameStyle(QFrame::StyledPanel);
 
   m_mainLayout = new QGridLayout(this);
-  m_mainLayout->setMargin(12);
+  m_mainLayout->setContentsMargins(12, 12, 12, 12);
   m_mainLayout->setVerticalSpacing(10);
   m_mainLayout->setHorizontalSpacing(5);
 
@@ -130,7 +130,7 @@ void ParamsPage::setPageField(TIStream &is, const TFxP &fx, bool isVertical) {
   // metodo, per sicurezza verifico.
   if (isVertical == false && !m_horizontalLayout) {
     m_horizontalLayout = new QHBoxLayout();
-    m_horizontalLayout->setMargin(0);
+    m_horizontalLayout->setContentsMargins(0, 0, 0, 0);
     m_horizontalLayout->setSpacing(5);
   }
 
@@ -236,7 +236,7 @@ void ParamsPage::setPageField(TIStream &is, const TFxP &fx, bool isVertical) {
     } else if (tagName == "hbox") {
       int currentRow     = m_mainLayout->rowCount();
       m_horizontalLayout = new QHBoxLayout();
-      m_horizontalLayout->setMargin(0);
+      m_horizontalLayout->setContentsMargins(0, 0, 0, 0);
       m_horizontalLayout->setSpacing(5);
       setPageField(is, fx, false);
       m_mainLayout->addLayout(m_horizontalLayout, currentRow, 1, 1, 2);
@@ -251,7 +251,7 @@ void ParamsPage::setPageField(TIStream &is, const TFxP &fx, bool isVertical) {
           std::string label   = is.getTagAttribute("label");
           QCheckBox *checkBox = new QCheckBox(this);
           QHBoxLayout *sepLay = new QHBoxLayout();
-          sepLay->setMargin(0);
+          sepLay->setContentsMargins(0, 0, 0, 0);
           sepLay->setSpacing(5);
           sepLay->addWidget(checkBox, 0);
           sepLay->addWidget(new Separator(QString::fromStdString(label), this),
@@ -264,15 +264,9 @@ void ParamsPage::setPageField(TIStream &is, const TFxP &fx, bool isVertical) {
           tmpWidget->setVisible(shrink == 1);
         } else {  // modeSensitiveStr != ""
           QList<int> modes;
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
           QStringList modeListStr =
               QString::fromStdString(is.getTagAttribute("mode"))
                   .split(',', Qt::SkipEmptyParts);
-#else
-          QStringList modeListStr =
-              QString::fromStdString(is.getTagAttribute("mode"))
-                  .split(',', QString::SkipEmptyParts);
-#endif
           for (QString modeNum : modeListStr) modes.push_back(modeNum.toInt());
           // find the mode combobox
           ModeChangerParamField *modeChanger = nullptr;
@@ -306,7 +300,7 @@ void ParamsPage::setPageField(TIStream &is, const TFxP &fx, bool isVertical) {
         QGridLayout *keepMainLay = m_mainLayout;
         // temporary switch the layout
         m_mainLayout = new QGridLayout();
-        m_mainLayout->setMargin(0);
+        m_mainLayout->setContentsMargins(0, 0, 0, 0);
         m_mainLayout->setVerticalSpacing(10);
         m_mainLayout->setHorizontalSpacing(5);
         m_mainLayout->setColumnStretch(0, 0);
@@ -508,7 +502,7 @@ void ParamsPage::addWidget(QWidget *field, bool isVertical) {
   } else {
     if (!m_horizontalLayout) {
       m_horizontalLayout = new QHBoxLayout();
-      m_horizontalLayout->setMargin(0);
+      m_horizontalLayout->setContentsMargins(0, 0, 0, 0);
       m_horizontalLayout->setSpacing(5);
     }
     m_horizontalLayout->addWidget(field);
@@ -734,11 +728,11 @@ ParamsPageSet::ParamsPageSet(QWidget *parent, Qt::WindowFlags flags)
 
   //----layout
   QVBoxLayout *mainLayout = new QVBoxLayout();
-  mainLayout->setMargin(0);
+  mainLayout->setContentsMargins(0, 0, 0, 0);
   mainLayout->setSpacing(0);
   {
     QHBoxLayout *hLayout = new QHBoxLayout();
-    hLayout->setMargin(0);
+    hLayout->setContentsMargins(0, 0, 0, 0);
     hLayout->addSpacing(0);
     {
       hLayout->addWidget(m_tabBar);
@@ -1085,13 +1079,13 @@ ParamViewer::ParamViewer(QWidget *parent, Qt::WindowFlags flags)
   showSwatchButton->setFocusPolicy(Qt::NoFocus);
 
   QVBoxLayout *mainLayout = new QVBoxLayout(this);
-  mainLayout->setMargin(0);
+  mainLayout->setContentsMargins(0, 0, 0, 0);
   mainLayout->setSpacing(0);
   {
     mainLayout->addWidget(m_tablePageSet, 1);
 
     QHBoxLayout *showPreviewButtonLayout = new QHBoxLayout(this);
-    showPreviewButtonLayout->setMargin(3);
+    showPreviewButtonLayout->setContentsMargins(3, 3, 3, 3);
     showPreviewButtonLayout->setSpacing(3);
     {
       showPreviewButtonLayout->addWidget(showSwatchButton, 0);
@@ -1244,7 +1238,7 @@ FxSettings::FxSettings(QWidget *parent, const TPixel32 &checkCol1,
   addWidget(m_paramViewer);
 
   QVBoxLayout *swatchLayout = new QVBoxLayout(swatchContainer);
-  swatchLayout->setMargin(0);
+  swatchLayout->setContentsMargins(0, 0, 0, 0);
   swatchLayout->setSpacing(0);
   {
     swatchLayout->addWidget(m_viewer, 0, Qt::AlignHCenter);

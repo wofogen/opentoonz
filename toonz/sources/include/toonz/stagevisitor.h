@@ -7,6 +7,7 @@
 #include "timage.h"
 #include "trastercm.h"
 #include "tgl.h"
+#include <string>
 
 // TnzExt includes
 #include "ext/plasticvisualsettings.h"
@@ -43,7 +44,7 @@ class TToonzImage;
 class TMeshImage;
 class QPainter;
 class QPolygon;
-class QMatrix;
+class QTransform;
 
 namespace Stage {
 class Player;
@@ -260,6 +261,7 @@ private:
   int m_maskLevel;
   bool m_singleColumnEnabled;
   bool m_checkFlags;
+  std::string m_currentImageId; // Used to update the autoClose cache
 
   // darken blended view mode for viewing the non-cleanuped and stacked drawings
   bool m_doRasterDarkenBlendedView;
@@ -284,7 +286,7 @@ public:
   int getNodesCount();
   void clearNodes();
 
-  TRasterP getRaster(int index, QMatrix &matrix);
+  TRasterP getRaster(int index, QTransform &matrix);
 
   void flushRasterImages();
   void drawRasterImages(QPainter &p, QPolygon cameraRect);
@@ -293,7 +295,7 @@ public:
   bool isSingleColumnEnabled() const { return m_singleColumnEnabled; }
 
   void setRasterDarkenBlendedView(bool on) { m_doRasterDarkenBlendedView = on; }
-
+  void setCurrentImageId(std::string id) { m_currentImageId = id; }
   std::vector<TStroke *> &getGuidedStrokes() { return m_guidedStrokes; }
 };
 
@@ -355,7 +357,7 @@ public:
 
   void onImage(const Stage::Player &data) override;
   void onVectorImage(TVectorImage *vi, const Stage::Player &data);
-  void onRasterImage(TRasterImage *ri, const Stage::Player &data);
+  void onRasterImage(TRasterImage *ri, const Stage::Player &data) override;
   void onToonzImage(TToonzImage *ti, const Stage::Player &data);
 
   void beginMask() override;

@@ -20,10 +20,10 @@
 // TnzCore includes
 #include "tlevel_io.h"
 #include "tproperty.h"
-#include "movsettings.h"
 #include "timageinfo.h"
 #include "tfiletype.h"
 #include "tiio.h"
+#include "movsettings.h"
 
 // Qt includes
 #include <QComboBox>
@@ -68,7 +68,7 @@ FormatSettingsPopup::FormatSettingsPopup(QWidget *parent,
   setWindowFlags(Qt::Dialog | Qt::WindowStaysOnTopHint);
 
   m_mainLayout = new QGridLayout();
-  m_mainLayout->setMargin(0);
+  m_mainLayout->setContentsMargins(0, 0, 0, 0);
   m_mainLayout->setVerticalSpacing(5);
   m_mainLayout->setHorizontalSpacing(5);
   m_mainLayout->setColumnStretch(0, 0);

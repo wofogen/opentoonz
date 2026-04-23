@@ -7,6 +7,8 @@
 #include "viewerpane.h"
 #include "exportpanel.h"
 #include "scriptconsolepanel.h"
+#include "brushpresetpanel.h"
+#include "toolpropertiespanel.h"
 
 #include "floatingpanelcommand.h"
 #include "subscenecommand.h"
@@ -84,6 +86,8 @@
 #include "toonz/toonzfolders.h"
 #include "toonz/fxcommand.h"
 #include "toonz/tstageobjectcmd.h"
+
+#include "../../toonz/locatorpopup.h"
 
 // TnzBase includes
 #include "trasterfx.h"
@@ -189,8 +193,7 @@ void SchematicScenePanel::onCollapse(QList<TStageObjectId> objects) {
 //-----------------------------------------------------------------------------
 
 void SchematicScenePanel::onExplodeChild(const QList<TFxP> &fxs) {
-  int i;
-  for (i = 0; i < fxs.size(); i++) {
+  for (int i = 0; i < fxs.size(); i++) {
     TLevelColumnFx *lcFx = dynamic_cast<TLevelColumnFx *>(fxs[i].getPointer());
     if (lcFx) SubsceneCmd::explode(lcFx->getColumnIndex());
   }
@@ -199,8 +202,7 @@ void SchematicScenePanel::onExplodeChild(const QList<TFxP> &fxs) {
 //-----------------------------------------------------------------------------
 
 void SchematicScenePanel::onExplodeChild(QList<TStageObjectId> ids) {
-  int i;
-  for (i = 0; i < ids.size(); i++) {
+  for (int i = 0; i < ids.size(); i++) {
     TStageObjectId id = ids[i];
     if (id.isColumn()) SubsceneCmd::explode(id.getIndex());
   }
@@ -237,10 +239,13 @@ void SchematicScenePanel::onDeleteFxs(const FxSelection *selection) {
   if (!ColumnCmd::checkExpressionReferences(colIndices, fxs)) return;
 
   TApp *app = TApp::instance();
-  TFxCommand::deleteSelection(selection->getFxs().toStdList(),
-                              selection->getLinks().toStdList(),
-                              selection->getColumnIndexes().toStdList(),
-                              app->getCurrentXsheet(), app->getCurrentFx());
+  TFxCommand::deleteSelection(
+      std::list<TFxP>(selection->getFxs().begin(), selection->getFxs().end()),
+      std::list<Link>(selection->getLinks().begin(),
+                      selection->getLinks().end()),
+      std::list<int>(selection->getColumnIndexes().begin(),
+                     selection->getColumnIndexes().end()),
+      app->getCurrentXsheet(), app->getCurrentFx());
 }
 
 //-----------------------------------------------------------------------------
@@ -252,9 +257,16 @@ void SchematicScenePanel::onDeleteStageObjects(
     return;
 
   TApp *app = TApp::instance();
+  // Safe conversion QList → std::vector (avoids std::length_error crash)
+  const QList<TStageObjectId> objList = selection->getObjects();
+  std::vector<TStageObjectId> objects(objList.begin(), objList.end());
+
   TStageObjectCmd::deleteSelection(
-      selection->getObjects().toVector().toStdVector(),
-      selection->getLinks().toStdList(), selection->getSplines().toStdList(),
+      objects,
+      std::list<QPair<TStageObjectId, TStageObjectId>>(
+          selection->getLinks().begin(), selection->getLinks().end()),
+      std::list<int>(selection->getSplines().begin(),
+                     selection->getSplines().end()),
       app->getCurrentXsheet(), app->getCurrentObject(), app->getCurrentFx());
 }
 
@@ -262,6 +274,13 @@ void SchematicScenePanel::onDeleteStageObjects(
 
 void SchematicScenePanel::onColumnPaste(const QList<TXshColumnP> &columns) {
   LevelCmd::addMissingLevelsToCast(columns);
+}
+
+//-----------------------------------------------------------------------------
+
+void SchematicScenePanel::onPreferenceChanged(const QString &prefName) {
+  if (prefName == "unifyColumnVisibilityToggles")
+    m_schematicViewer->updateSchematic();
 }
 
 //-----------------------------------------------------------------------------
@@ -299,6 +318,8 @@ void SchematicScenePanel::showEvent(QShowEvent *e) {
           SLOT(updateSchematic()));
   connect(app->getCurrentScene(), SIGNAL(sceneSwitched()), m_schematicViewer,
           SLOT(onSceneSwitched()));
+  connect(app->getCurrentScene(), SIGNAL(preferenceChanged(const QString &)),
+          this, SLOT(onPreferenceChanged(const QString &)));
   connect(m_schematicViewer, SIGNAL(columnPasted(const QList<TXshColumnP> &)),
           this, SLOT(onColumnPaste(const QList<TXshColumnP> &)));
   m_schematicViewer->updateSchematic();
@@ -330,6 +351,8 @@ void SchematicScenePanel::hideEvent(QHideEvent *e) {
              m_schematicViewer, SLOT(updateSchematic()));
   disconnect(app->getCurrentScene(), SIGNAL(sceneSwitched()), m_schematicViewer,
              SLOT(onSceneSwitched()));
+  disconnect(app->getCurrentScene(), SIGNAL(preferenceChanged(const QString &)),
+             this, SLOT(onPreferenceChanged(const QString &)));
   disconnect(m_schematicViewer,
              SIGNAL(columnPasted(const QList<TXshColumnP> &)), this,
              SLOT(onColumnPaste(const QList<TXshColumnP> &)));
@@ -341,7 +364,7 @@ OpenFloatingPanel openSchematicSceneViewerCommand(MI_OpenSchematic, "Schematic",
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-/*-- ショートカットキーでPreviewFxを実行するためのコマンド --*/
+// Command to preview the current Fx via shortcut key
 class FxPreviewCommand {
 public:
   FxPreviewCommand() {
@@ -354,10 +377,8 @@ public:
       DVGui::warning("Preview Fx : No Current Fx !");
       return;
     }
-    /*--
-     TLevelColumnFx,TZeraryColumnFx,TXsheetFx,通常のFxで使用可能
-     TPaletteColumnFx, TOutputFxではPreviewは使用不可
-     --*/
+    // Preview is available for level column, zerary column, xsheet and normal
+    // Fx. Not available for palette column Fx and output Fx.
     TPaletteColumnFx *pfx = dynamic_cast<TPaletteColumnFx *>(currentFx);
     TOutputFx *ofx        = dynamic_cast<TOutputFx *>(currentFx);
     if (pfx || ofx) {
@@ -531,8 +552,7 @@ void PaletteViewerPanel::reset() {
 //-----------------------------------------------------------------------------
 
 void PaletteViewerPanel::initializeTitleBar() {
-  m_freezeButton = new TPanelTitleBarButton(
-      getTitleBar(), getIconThemePath("actions/20/pane_freeze.svg"));
+  m_freezeButton = new TPanelTitleBarButton(getTitleBar(), "freeze");
   m_freezeButton->setToolTip(tr("Freeze"));
   getTitleBar()->add(QPoint(-54, 0), m_freezeButton);
   m_freezeButton->setPressed(m_isFrozen);
@@ -559,8 +579,8 @@ void PaletteViewerPanel::onFreezeButtonToggled(bool frozen) {
 
   TApp *app          = TApp::instance();
   TPaletteHandle *ph = app->getPaletteController()->getCurrentLevelPalette();
-  // Se sono sulla palette del livello corrente e le palette e' vuota non
-  // consento di bloccare il pannello.
+  // If we are on the current level palette and it is empty, don't allow
+  // freezing
   if (!isFrozen() && !ph->getPalette()) {
     m_freezeButton->setPressed(false);
     return;
@@ -569,7 +589,7 @@ void PaletteViewerPanel::onFreezeButtonToggled(bool frozen) {
   setFrozen(frozen);
   m_paletteViewer->enableSaveAction(!frozen);
 
-  // Cambio il livello corrente
+  // Switch current level when unfreezing
   if (!frozen) {
     m_frozenPalette = nullptr;
     std::set<TXshSimpleLevel *> levels;
@@ -577,16 +597,14 @@ void PaletteViewerPanel::onFreezeButtonToggled(bool frozen) {
     int row, column;
     findPaletteLevels(levels, row, column, m_paletteHandle->getPalette(),
                       xsheet);
-    // Se non trovo livelli riferiti alla palette setto il palette viewer alla
-    // palette del livello corrente.
+    // If no levels reference this palette, revert to the current level palette
     if (levels.empty()) {
       m_paletteViewer->setPaletteHandle(ph);
       update();
       return;
     }
     TXshSimpleLevel *level = *levels.begin();
-    // Se sto editando l'xsheet devo settare come corrente anche la colonna e il
-    // frame.
+    // When editing the scene, also update current column and frame
     if (app->getCurrentFrame()->isEditingScene()) {
       int currentColumn = app->getCurrentColumn()->getColumnIndex();
       if (currentColumn != column)
@@ -613,13 +631,13 @@ void PaletteViewerPanel::onFreezeButtonToggled(bool frozen) {
 //-----------------------------------------------------------------------------
 
 void PaletteViewerPanel::onSceneSwitched() {
-  // Se e' il paletteHandle del livello corrente l'aggiornamento viene fatto
-  // grazie all'aggiornamento del livello.
+  // If the current palette handle belongs to the level palette, it will be
+  // updated automatically
   if (!isFrozen()) return;
 
-  // Setto a zero la palette del "paletteHandle bloccato".
+  // Clear the frozen palette handle
   m_paletteHandle->setPalette(0);
-  // Sblocco il viewer nel caso in cui il e' bloccato.
+  // Unfreeze if currently frozen
   if (isFrozen()) {
     setFrozen(false);
     m_freezeButton->setPressed(false);
@@ -778,11 +796,11 @@ void ColorFieldEditorController::edit(DVGui::ColorField *colorField) {
   m_currentColorField = colorField;
   m_currentColorField->setIsEditing(true);
 
-  // Setto come stile corrente quello del colorField
+  // Use the color field's style as the current one (style index 1)
   TColorStyle *style = m_palette->getStyle(1);
   style->setMainColor(m_currentColorField->getColor());
 
-  // Setto m_colorFieldHandle come paletteHandle corrente.
+  // Set our internal palette handle as the current one
   TApp::instance()->getPaletteController()->setCurrentPalette(
       m_colorFieldHandle);
 
@@ -832,8 +850,7 @@ CleanupColorFieldEditorController::CleanupColorFieldEditorController()
     : m_currentColorField(0)
     , m_colorFieldHandle(new TPaletteHandle)
     , m_palette(new TPalette) {
-  std::wstring name = L"EmptyColorFieldPalette";
-  m_palette->setPaletteName(name);
+  m_palette->setIsCleanupPalette(true);
   m_colorFieldHandle->setPalette(m_palette.getPointer(), 1);
   DVGui::CleanupColorField::setEditorController(this);
 }
@@ -849,7 +866,7 @@ void CleanupColorFieldEditorController::edit(
   if (!colorField) return;
   m_currentColorField->setIsEditing(true);
 
-  // Setto come stile corrente quello del colorField
+  // Use the color field's style as the current one (style index 1)
   TColorStyle *fieldStyle = colorField->getStyle();
 
   m_blackColor = dynamic_cast<TBlackCleanupStyle *>(fieldStyle);
@@ -864,7 +881,7 @@ void CleanupColorFieldEditorController::edit(
     style->setColorParamValue(1, fieldStyle->getColorParamValue(1));
   }
 
-  // Setto m_colorFieldHandle come paletteHandle corrente.
+  // Set our internal palette handle as the current one
   TApp::instance()->getPaletteController()->setCurrentPalette(
       m_colorFieldHandle);
 
@@ -905,7 +922,7 @@ CleanupColorFieldEditorController cleanupColorFieldEditorController;
 //-----------------------------------------------------------------------------
 
 //=============================================================================
-// style editor
+// Style editor
 //-----------------------------------------------------------------------------
 
 StyleEditorPanel::StyleEditorPanel(QWidget *parent) : TPanel(parent) {
@@ -979,7 +996,7 @@ public:
 
 //-----------------------------------------------------------------------------
 CommandBarPanel::CommandBarPanel(QWidget *parent)
-    : TPanel(parent, 0, TDockWidget::horizontal) {
+    : TPanel(parent, Qt::WindowFlags(), TDockWidget::horizontal) {
   CommandBar *xsheetToolbar = new CommandBar();
   setWidget(xsheetToolbar);
   setIsMaximizable(false);
@@ -1007,7 +1024,7 @@ OpenFloatingPanel openCommandBarCommand(MI_OpenCommandToolbar, "CommandBar",
 //---------------------------------------------------------
 
 ToolOptionPanel::ToolOptionPanel(QWidget *parent)
-    : TPanel(parent, 0, TDockWidget::horizontal) {
+    : TPanel(parent, Qt::WindowFlags(), TDockWidget::horizontal) {
   TApp *app    = TApp::instance();
   m_toolOption = new ToolOptions;
 
@@ -1050,8 +1067,8 @@ void FlipbookBasePanel::zoomContentsAndFitGeometry(bool forward) {
     TPanel::zoomContentsAndFitGeometry(forward);
     return;
   }
-  // resize the window leaving the top-left corner position unchanged
-  // in order to gain consistency with Photoshop
+  // Resize the window keeping the top-left corner fixed (Photoshop-like
+  // behavior)
   auto getScreen = [&]() {
     QScreen *ret = nullptr;
     ret          = QGuiApplication::screenAt(geometry().topLeft());
@@ -1091,7 +1108,7 @@ void FlipbookBasePanel::zoomContentsAndFitGeometry(bool forward) {
 FlipbookPanel::FlipbookPanel(QWidget *parent) : FlipbookBasePanel(parent) {
   m_flipbook = new FlipBook(this);
   setWidget(m_flipbook);
-  // minimize button and safearea toggle
+  // Minimize button and safe area toggle
   initializeTitleBar(getTitleBar());
 
   MainWindow *mw =
@@ -1111,10 +1128,10 @@ void FlipbookPanel::initializeTitleBar(TPanelTitleBar *titleBar) {
   bool ret      = true;
   int x         = -91;
   int iconWidth = 20;
-  // safe area button
+
+  // Safe area button
   TPanelTitleBarButtonForSafeArea *safeAreaButton =
-      new TPanelTitleBarButtonForSafeArea(
-          titleBar, getIconThemePath("actions/20/pane_safe.svg"));
+      new TPanelTitleBarButtonForSafeArea(titleBar, "safearea");
   safeAreaButton->setToolTip(tr("Safe Area (Right Click to Select)"));
   titleBar->add(QPoint(x, 0), safeAreaButton);
   ret = ret && connect(safeAreaButton, SIGNAL(toggled(bool)),
@@ -1123,14 +1140,13 @@ void FlipbookPanel::initializeTitleBar(TPanelTitleBar *titleBar) {
   ret = ret && connect(CommandManager::instance()->getAction(MI_SafeArea),
                        SIGNAL(triggered(bool)), safeAreaButton,
                        SLOT(setPressed(bool)));
-  // sync the initial state
+  // Synchronize initial state
   safeAreaButton->setPressed(
       CommandManager::instance()->getAction(MI_SafeArea)->isChecked());
 
   x += 28 + iconWidth;
-  // minimize button
-  m_button = new TPanelTitleBarButton(
-      titleBar, getIconThemePath("actions/20/pane_minimize.svg"));
+  // Minimize button
+  m_button = new TPanelTitleBarButton(titleBar, "minimize");
   m_button->setToolTip(tr("Minimize"));
   m_button->setPressed(false);
 
@@ -1201,7 +1217,8 @@ class BrowserFactory final : public TPanelFactory {
 public:
   BrowserFactory() : TPanelFactory("Browser") {}
   void initialize(TPanel *panel) override {
-    FileBrowser *browser = new FileBrowser(panel, 0, false, true);
+    FileBrowser *browser =
+        new FileBrowser(panel, Qt::WindowFlags(), false, true);
     panel->setWidget(browser);
     panel->setWindowTitle(QObject::tr("File Browser"));
     TFilePath currentProjectFolder =
@@ -1218,7 +1235,8 @@ class PreproductionBoardFactory final : public TPanelFactory {
 public:
   PreproductionBoardFactory() : TPanelFactory("PreproductionBoard") {}
   void initialize(TPanel *panel) override {
-    SceneBrowser *browser = new SceneBrowser(panel, 0, false, true);
+    SceneBrowser *browser =
+        new SceneBrowser(panel, Qt::WindowFlags(), false, true);
     panel->setWidget(browser);
     panel->setWindowTitle(QObject::tr("Preproduction Board"));
     TFilePath scenesFolder =
@@ -1348,8 +1366,6 @@ public:
     ScriptConsolePanel *panel = new ScriptConsolePanel(parent);
     panel->setObjectName(getPanelType());
 
-    // panel->setWindowTitle(QObject::tr("Function Editor"));
-    // panel->setMinimumSize(220, 200);
     return panel;
   }
 
@@ -1375,11 +1391,11 @@ ComboViewerPanelContainer::ComboViewerPanelContainer(QWidget *parent)
                      this, SLOT(updateTabFocus()));
   assert(ret);
 }
-// reimplementation of TPanel::widgetInThisPanelIsFocused
+// Reimplementation of TPanel::widgetInThisPanelIsFocused
 bool ComboViewerPanelContainer::widgetInThisPanelIsFocused() {
   return m_comboViewer->hasFocus();
 }
-// reimplementation of TPanel::widgetFocusOnEnter
+// Reimplementation of TPanel::widgetFocusOnEnter
 void ComboViewerPanelContainer::widgetFocusOnEnter() {
   m_comboViewer->onEnterPanel();
 }
@@ -1419,11 +1435,11 @@ SceneViewerPanelContainer::SceneViewerPanelContainer(QWidget *parent)
 
   m_sceneViewer->initializeTitleBar(getTitleBar());
 }
-// reimplementation of TPanel::widgetInThisPanelIsFocused
+// Reimplementation of TPanel::widgetInThisPanelIsFocused
 bool SceneViewerPanelContainer::widgetInThisPanelIsFocused() {
   return m_sceneViewer->hasFocus();
 }
-// reimplementation of TPanel::widgetFocusOnEnter
+// Reimplementation of TPanel::widgetFocusOnEnter
 void SceneViewerPanelContainer::widgetFocusOnEnter() {
   m_sceneViewer->onEnterPanel();
 }
@@ -1444,6 +1460,7 @@ public:
     panel->setMinimumSize(220, 280);
     return panel;
   }
+
   void initialize(TPanel *panel) override { assert(0); }
 } sceneViewerFactory;
 
@@ -1495,7 +1512,7 @@ OpenFloatingPanel openHistoryPanelCommand(MI_OpenHistoryPanel, "HistoryPanel",
 
 #if defined(x64)
 //=============================================================================
-// StopMotion Controller
+// Stop Motion Controller
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
@@ -1520,6 +1537,62 @@ OpenFloatingPanel openStopMotionPanelCommand(
 //-----------------------------------------------------------------------------
 
 #endif  // x64
+
+//=============================================================================
+// BrushPresetPanel - Dynamic brush preset management panel
+//-----------------------------------------------------------------------------
+
+class BrushPresetPanelFactory final : public TPanelFactory {
+public:
+  BrushPresetPanelFactory() : TPanelFactory("BrushPreset") {}
+
+  TPanel *createPanel(QWidget *parent) override {
+    BrushPresetPanel *panel = new BrushPresetPanel(parent);
+    panel->setObjectName(getPanelType());
+    panel->setWindowTitle(QObject::tr("Brush Presets"));
+    panel->setIsMaximizable(false);
+    
+    // Enable room binding feature
+    panel->addRoomBindButton();
+    
+    return panel;
+  }
+
+  void initialize(TPanel *panel) override { assert(0); }
+} brushPresetPanelFactory;
+
+//=============================================================================
+OpenFloatingPanel openBrushPresetPanelCommand(MI_OpenBrushPresetPanel, "BrushPreset",
+                                              QObject::tr("Brush Presets"));
+//-----------------------------------------------------------------------------
+
+//=============================================================================
+// Tool Properties Panel
+//-----------------------------------------------------------------------------
+
+class ToolPropertiesPanelFactory final : public TPanelFactory {
+public:
+  ToolPropertiesPanelFactory() : TPanelFactory("ToolProperties") {}
+
+  TPanel *createPanel(QWidget *parent) override {
+    ToolPropertiesPanel *panel = new ToolPropertiesPanel(parent);
+    panel->setObjectName(getPanelType());
+    panel->setWindowTitle(QObject::tr("Tool Properties"));
+    panel->setIsMaximizable(false);
+    
+    // Enable room binding feature
+    panel->addRoomBindButton();
+    
+    return panel;
+  }
+
+  void initialize(TPanel *panel) override { assert(0); }
+} toolPropertiesPanelFactory;
+
+//=============================================================================
+OpenFloatingPanel openToolPropertiesPanelCommand(MI_OpenToolPropertiesPanel, "ToolProperties",
+                                                  QObject::tr("Tool Properties"));
+//-----------------------------------------------------------------------------
 
 //=============================================================================
 // FxSettings
@@ -1557,8 +1630,8 @@ void FxSettingsPanel::restoreFloatingPanelState() {
   settings.beginGroup("FxSettings");
 
   QRect geom = settings.value("geometry", saveGeometry()).toRect();
-  // check if it can be visible in the current screen
-  if (!(geom & QApplication::desktop()->availableGeometry(this)).isEmpty())
+  // Check if it can be visible in the current screen
+  if (!(geom & this->screen()->availableGeometry()).isEmpty())
     move(geom.topLeft());
 
   // FxSettings has no optional settings (SaveLoadQSettings) to load
@@ -1642,8 +1715,43 @@ public:
   void execute() override { zoomAndFitPanel(true); }
 } zoomInAndFitPanel;
 
-class ZoomOutAndFitPanel final : public MenuItemHandler {
+//=============================================================================
+OpenFloatingPanel openFxBrowserCommand(MI_InsertFx, "FxBrowser",
+                                       QObject::tr("Fx Browser"));
+
+//-----------------------------------------------------------------------------
+
+//=============================================================================
+// LocatorPanel
+//-----------------------------------------------------------------------------
+
+LocatorPanel::LocatorPanel(QWidget *parent) : TPanel(parent) {
+  m_locator = new LocatorPopup(parent);
+
+  setWidget(m_locator);
+}
+
+//=============================================================================
+// LocatorFactory
+//-----------------------------------------------------------------------------
+
+class LocatorFactory final : public TPanelFactory {
 public:
-  ZoomOutAndFitPanel() : MenuItemHandler("MI_ZoomOutAndFitPanel") {}
-  void execute() override { zoomAndFitPanel(false); }
-} zoomOutAndFitPanel;
+  LocatorFactory() : TPanelFactory("Locator") {}
+
+  TPanel *createPanel(QWidget *parent) override {
+    LocatorPanel *panel = new LocatorPanel(parent);
+    panel->move(qApp->desktop()->screenGeometry(panel).center());
+    panel->setObjectName(getPanelType());
+    panel->setWindowTitle(QObject::tr("Locator"));
+    panel->allowMultipleInstances(false);
+    return panel;
+  }
+
+  void initialize(TPanel *panel) override { assert(0); }
+
+} LocatorFactory;
+
+//=============================================================================
+OpenFloatingPanel openLocatorCommand(MI_OpenLocator, "Locator",
+                                     QObject::tr("Locator"));

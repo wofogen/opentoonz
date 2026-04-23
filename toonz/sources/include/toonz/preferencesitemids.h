@@ -13,6 +13,7 @@ enum PreferencesItemId {
   projectRoot,
   customProjectRoot,
   pathAliasPriority,
+  lazyLoadRooms,
 
   //----------
   // Interface
@@ -39,16 +40,21 @@ enum PreferencesItemId {
   colorCalibrationEnabled,
   colorCalibrationLutPaths,
   showIconsInMenu,
+  showRoomBindButtons,
   displayIn30bit,
+  viewerIndicatorEnabled,
 
   //----------
   // Visualization
   show0ThickLines,
   regionAntialias,
+  rasterizeAntialias,
 
   //----------
   // Loading
   importPolicy,
+  renamePolicy,
+  convertPolicy,
   autoExposeEnabled,
   subsceneFolderEnabled,
   removeSceneNumberFromLoadedLevelName,
@@ -77,6 +83,7 @@ enum PreferencesItemId {
   ffmpegTimeout,
   fastRenderPath,
   ffmpegMultiThread,
+  quickTimeBackend,
   rhubarbPath,
   rhubarbTimeout,
 
@@ -107,19 +114,26 @@ enum PreferencesItemId {
   // Tools
   // dropdownShortcutsCycleOptions, // removed
   FillOnlysavebox,
+  DefRegionWithPaint,
+  ReferFillPrevailing,
   multiLayerStylePickerEnabled,
   cursorBrushType,
   cursorBrushStyle,
   cursorOutlineEnabled,
   levelBasedToolsDisplay,
   useCtrlAltToResizeBrush,
+  useStrokeEndCursor,
+  clickTwiceToCreateArcs,
   tempToolSwitchTimer,
+  animateToolHandleSize,
+  animateToolColor,
 
   //----------
   // Xsheet
   xsheetLayoutPreference,
   xsheetStep,
   xsheetAutopanEnabled,
+  alwaysDragFrameCell,
   DragCellsBehaviour,
   deleteCommandBehavior,
   pasteCellsBehavior,
@@ -127,11 +141,13 @@ enum PreferencesItemId {
   showKeyframesOnXsheetCellArea,
   showXsheetCameraColumn,
   useArrowKeyToShiftCellSelection,
-  inputCellsWithoutDoubleClickingEnabled,
+  cellInputMethod,
   shortcutCommandsWhileRenamingCellEnabled,
   showXSheetToolbar,
+  showXsheetBreadcrumbs,
   expandFunctionHeader,
   showColumnNumbers,
+  unifyColumnVisibilityToggles,
   parentColorsInXsheetColumn,
   highlightLineEverySecond,
   syncLevelRenumberWithXsheet,
@@ -139,6 +155,7 @@ enum PreferencesItemId {
   currentColumnColor,
   levelNameDisplayType,
   showFrameNumberWithLetters,
+  linkColumnNameWithLevel,
 
   //----------
   // Animation
@@ -152,7 +169,7 @@ enum PreferencesItemId {
   blankColor,
   rewindAfterPlayback,
   previewAlwaysOpenNewFlip,
-  fitToFlipbook,
+  fitToFlipbookWhenPreview,
   generatedMovieViewEnabled,
   shortPlayFrameCount,
 
@@ -177,6 +194,9 @@ enum PreferencesItemId {
   transpCheckInkOnWhite,
   transpCheckInkOnBlack,
   transpCheckPaint,
+  inkCheckColor,
+  ink1CheckColor,
+  paintCheckColor,
 
   //----------
   // Version Control

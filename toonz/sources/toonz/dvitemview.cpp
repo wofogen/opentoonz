@@ -353,8 +353,11 @@ void DvItemSelection::selectNone() {
 
 void DvItemSelection::selectAll() {
   m_selectedIndices.clear();
-  int i = 0;
-  for (i = 0; i < m_model->getItemCount(); i++) m_selectedIndices.insert(i);
+
+  // exclude the parent folder
+  int i =
+      m_model->getItemData(0, DvItemListModel::Name).toString() == ".." ? 1 : 0;
+  for (; i < m_model->getItemCount(); i++) m_selectedIndices.insert(i);
   emit itemSelectionChanged();
 }
 
@@ -1028,8 +1031,7 @@ void DvItemViewerPanel::paintThumbnailItem(QPainter &p, int index) {
   if (!thumbnail.isNull()) p.drawPixmap(iconRect.topLeft(), thumbnail);
   //}
   else {
-    static QPixmap missingPixmap =
-        QPixmap(getIconThemePath("mimetypes/60/missing_icon.svg"));
+    static QPixmap missingPixmap(getIconPath("missing_icon"));
     QRect pixmapRect(rect.left() + (rect.width() - missingPixmap.width()) / 2,
                      rect.top(), missingPixmap.width(), missingPixmap.height());
     p.drawPixmap(pixmapRect.topLeft(), missingPixmap);
@@ -1182,11 +1184,8 @@ void DvItemViewerPanel::mousePressEvent(QMouseEvent *event) {
   updateViewParameters(width());
   int index       = pos2index(event->pos());
   bool isSelected = m_selection->isSelected(index);
+  m_currentIndex  = index;
   if (event->button() == Qt::RightButton) {
-    // when a folder item is right-clicked, do nothing
-    if (getModel()->getItemData(index, DvItemListModel::IsFolder).toBool())
-      return;
-
     if (!isSelected) {
       m_selection->selectNone();
       if (!m_isPlayDelegateDisable) m_itemViewPlayDelegate->resetPlayWidget();
@@ -1250,8 +1249,7 @@ void DvItemViewerPanel::mousePressEvent(QMouseEvent *event) {
     }
   }
   if (m_globalSelectionEnabled) m_selection->makeCurrent();
-  m_currentIndex = index;
-  //if (m_viewer ) m_viewer->notifyClick(index);
+  // if (m_viewer ) m_viewer->notifyClick(index);
   m_startDragPosition = event->pos();
   update();
 }
@@ -1301,8 +1299,9 @@ void DvItemViewerPanel::mouseMoveEvent(QMouseEvent *event) {
 
 //-----------------------------------------------------------------------------
 
-void DvItemViewerPanel::mouseReleaseEvent(QMouseEvent *) {
-  if (m_viewer ) m_viewer->notifyClick(m_currentIndex);
+void DvItemViewerPanel::mouseReleaseEvent(QMouseEvent *event) {
+  if (m_viewer)
+    m_viewer->notifyClick(m_currentIndex, event->button() == Qt::LeftButton);
 }
 
 //-----------------------------------------------------------------------------
@@ -1416,8 +1415,7 @@ void DvItemViewerPanel::setThumbnailsView() {
 //-----------------------------------------------------------------------------
 
 void DvItemViewerPanel::exportFileList() {
-  TProject *project =
-      TProjectManager::instance()->getCurrentProject().getPointer();
+  auto project      = TProjectManager::instance()->getCurrentProject();
   ToonzScene *scene = TApp::instance()->getCurrentScene()->getScene();
   TFilePath fp;
   if (scene) fp = scene->decodeFilePath(project->getFolder(TProject::Extras));
@@ -1437,6 +1435,7 @@ void DvItemViewerPanel::exportFileList() {
   if (data.open(QFile::WriteOnly)) {
     QTextStream out(&data);
 
+    out << "Name,Frames,Path\n";
     for (int index = 0; index < getItemCount(); index++) {
       if (getModel()->getItemData(index, DvItemListModel::IsFolder).toBool())
         continue;
@@ -1445,13 +1444,16 @@ void DvItemViewerPanel::exportFileList() {
         DvItemListModel::DataType dataType = m_columns[i].first;
 
         if (dataType != DvItemListModel::Name &&
-            dataType != DvItemListModel::FrameCount)
+            dataType != DvItemListModel::FrameCount &&
+            dataType != DvItemListModel::FullPath)
           continue;
 
         QString value = getModel()->getItemDataAsString(index, dataType);
 
         out << value;
-        if (dataType == DvItemListModel::Name) out << ",";
+        if (dataType == DvItemListModel::Name ||
+            dataType == DvItemListModel::FrameCount)
+          out << ",";
       }
       out << ('\n');
     }

@@ -86,11 +86,12 @@ FileBrowserPopup::FileBrowserPopup(const QString &title, Options options,
   setWindowTitle(title);
   setModal(false);
 
-  m_browser        = new FileBrowser(this, 0, false, m_multiSelectionEnabled);
-  m_nameFieldLabel = new QLabel(tr("File name:"));
-  m_nameField      = new DVGui::LineEdit(this);
-  m_okButton       = new QPushButton(tr("OK"), this);
-  m_cancelButton   = new QPushButton(tr("Cancel"), this);
+  m_browser =
+      new FileBrowser(this, Qt::WindowFlags(), false, m_multiSelectionEnabled);
+  m_nameFieldLabel         = new QLabel(tr("File name:"));
+  m_nameField              = new DVGui::LineEdit(this);
+  m_okButton               = new QPushButton(tr("OK"), this);
+  m_cancelButton           = new QPushButton(tr("Cancel"), this);
   QPushButton *applyButton = 0;
   if (options & WITH_APPLY_BUTTON)
     applyButton = new QPushButton(
@@ -113,13 +114,13 @@ FileBrowserPopup::FileBrowserPopup(const QString &title, Options options,
   // layout
   if (!(options & CUSTOM_LAYOUT)) {
     QVBoxLayout *mainLayout = new QVBoxLayout();
-    mainLayout->setMargin(0);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setSpacing(3);
     {
       mainLayout->addWidget(m_browser, 1);
 
       QHBoxLayout *bottomLay = new QHBoxLayout();
-      bottomLay->setMargin(5);
+      bottomLay->setContentsMargins(5, 5, 5, 5);
       bottomLay->setSpacing(3);
       {
         bottomLay->addWidget(m_nameFieldLabel, 0);
@@ -130,7 +131,7 @@ FileBrowserPopup::FileBrowserPopup(const QString &title, Options options,
       if (m_customWidget) mainLayout->addWidget(m_customWidget);
 
       QHBoxLayout *buttonsLay = new QHBoxLayout();
-      buttonsLay->setMargin(5);
+      buttonsLay->setContentsMargins(5, 5, 5, 5);
       buttonsLay->setSpacing(15);
       {
         buttonsLay->addStretch();
@@ -273,7 +274,7 @@ void FileBrowserPopup::onOkPressed() {
     QCoreApplication::processEvents();  // <Solves a bug on XP... Bugzilla
                                         // #6041>
     accept();  // Tempted to remove the above - it should
-  }            // NOT be here, maybe in the executes()...
+  }  // NOT be here, maybe in the executes()...
 }
 
 //-----------------------------------------------------------------------------
@@ -333,7 +334,7 @@ void FileBrowserPopup::onFilePathClicked(const TFilePath &fp) {
 void FileBrowserPopup::onFilePathsSelected(
     const std::set<TFilePath> &paths,
     const std::list<std::vector<TFrameId>> &fIds) {
-  if (paths.size() == 0 && m_forSaving) return;
+  if (paths.size() == 0 && (m_forSaving || m_isDirectoryOnly)) return;
 
   m_selectedPaths  = paths;
   m_currentFIdsSet = fIds;
@@ -344,7 +345,8 @@ void FileBrowserPopup::onFilePathsSelected(
     if (!m_isDirectoryOnly)
       text = QString::fromStdWString(fp.getLevelNameW());
     else
-      text = QString::fromStdWString(m_browser->getFolder().getWideString());
+      text = fp.getDots().empty() ? fp.getQString()
+                                  : fp.getParentDir().getQString();
 
     m_nameField->setText(text);
   } else
@@ -510,6 +512,7 @@ LoadScenePopup::LoadScenePopup() : FileBrowserPopup(tr("Load Scene")) {
   setOkText(tr("Load"));
   addFilterType("tnz");
   addFilterType("xdts");
+  addFilterType("sxf");
 
   // set the initial current path according to the current module
   setInitialFolderByCurrentRoom();
@@ -523,7 +526,8 @@ bool LoadScenePopup::execute() {
 
   const TFilePath &fp = *m_selectedPaths.begin();
 
-  if (fp.getType() != "tnz" && fp.getType() != "xdts") {
+  if (fp.getType() != "tnz" && fp.getType() != "xdts" &&
+      fp.getType() != "sxf") {
     DVGui::error(toQString(fp) + tr(" is not a scene file."));
     return false;
   }
@@ -539,8 +543,8 @@ bool LoadScenePopup::execute() {
 void LoadScenePopup::initFolder() { setInitialFolderByCurrentRoom(); }
 
 void LoadScenePopup::setInitialFolderByCurrentRoom() {
-  QString roomName  = TApp::instance()->getCurrentRoomName();
-  TProjectP project = TProjectManager::instance()->getCurrentProject();
+  QString roomName = TApp::instance()->getCurrentRoomName();
+  auto project     = TProjectManager::instance()->getCurrentProject();
   TFilePath scenePath;
   if (roomName == "Cleanup" || roomName == "InknPaint")
     scenePath = project->getFolder(TProject::Drawings, true);
@@ -770,13 +774,13 @@ LoadLevelPopup::LoadLevelPopup()
   //----layout
   auto createVBoxLayout = [](int margin, int spacing) {
     QVBoxLayout *layout = new QVBoxLayout();
-    layout->setMargin(margin);
+    layout->setContentsMargins(margin, margin, margin, margin);
     layout->setSpacing(spacing);
     return layout;
   };
   auto createHBoxLayout = [](int margin, int spacing) {
     QHBoxLayout *layout = new QHBoxLayout();
-    layout->setMargin(margin);
+    layout->setContentsMargins(margin, margin, margin, margin);
     layout->setSpacing(spacing);
     return layout;
   };
@@ -796,7 +800,8 @@ LoadLevelPopup::LoadLevelPopup()
     QHBoxLayout *subsequenceHeadLay = createHBoxLayout(0, 5);
     {
       QFontMetrics metrics(font());
-      subsequenceHeadLay->addSpacing(metrics.width("File name:") + 3);
+      subsequenceHeadLay->addSpacing(metrics.horizontalAdvance("File name:") +
+                                     3);
       subsequenceHeadLay->addWidget(m_notExistLabel, 0);
       subsequenceHeadLay->addStretch(1);
 
@@ -829,7 +834,7 @@ LoadLevelPopup::LoadLevelPopup()
     QHBoxLayout *bottomLay = createHBoxLayout(0, 10);
     {
       QGridLayout *levelLay = new QGridLayout();
-      levelLay->setMargin(5);
+      levelLay->setContentsMargins(5, 5, 5, 5);
       levelLay->setSpacing(5);
       {
         levelLay->addWidget(new QLabel(tr("Level Name:"), this), 0, 0,
@@ -863,7 +868,7 @@ LoadLevelPopup::LoadLevelPopup()
       bottomLay->addWidget(m_levelPropertiesFrame, 0);
 
       QGridLayout *arrLay = new QGridLayout();
-      arrLay->setMargin(5);
+      arrLay->setContentsMargins(5, 5, 5, 5);
       arrLay->setSpacing(5);
       {
         arrLay->addWidget(new QLabel(tr("From:"), this), 0, 0,
@@ -1210,8 +1215,10 @@ bool LoadLevelPopup::execute() {
 
     args.frameCount = m_posTo->text().toInt() - m_posFrom->text().toInt() + 1;
 
-    if ((int)getCurrentFIdsSet().size() != 0)
-      args.frameIdsSet.push_back(*getCurrentFIdsSet().begin());
+    std::list<std::vector<TFrameId>> fidsSet = getCurrentFIdsSet();
+    if (!fidsSet.empty()) {
+      args.resourceDatas[0].m_frameIdSet = std::move(fidsSet.front());
+    }
 
     else if (m_notExistLabel->isVisible()) {
       TFrameId firstLoadingFId = m_fromFrame->getValue();
@@ -1228,7 +1235,7 @@ bool LoadLevelPopup::execute() {
       }
       if (!lastLoadingFId.getLetter().isEmpty())
         tmp_fids.push_back(lastLoadingFId);
-      args.frameIdsSet.push_back(tmp_fids);
+      args.resourceDatas[0].m_frameIdSet = std::move(tmp_fids);
     }
 
     TFrameId xFrom = m_xFrom->getValue();
@@ -1264,12 +1271,13 @@ bool LoadLevelPopup::execute() {
       args.resourceDatas.push_back(*it);
 
     std::list<std::vector<TFrameId>> fIdsSet = getCurrentFIdsSet();
-    if (fIdsSet.size() > 0) {
-      std::list<std::vector<TFrameId>>::const_iterator fIdIt;
-      for (fIdIt = fIdsSet.begin(); fIdIt != fIdsSet.end(); ++fIdIt)
-        args.frameIdsSet.insert(args.frameIdsSet.begin(), *fIdIt);
+    auto fIdIt                               = fIdsSet.begin();
+    auto rdIt                                = args.resourceDatas.begin();
+    while (fIdIt != fIdsSet.end() && rdIt != args.resourceDatas.end()) {
+      rdIt->m_frameIdSet = std::move(*fIdIt);
+      ++fIdIt;
+      ++rdIt;
     }
-
     args.cachingBehavior = IoCmd::LoadResourceArguments::CacheRasterBehavior(
         m_rasterCacheBehaviorComboBox->currentData().toInt());
 
@@ -1291,8 +1299,7 @@ bool LoadLevelPopup::execute() {
 void LoadLevelPopup::initFolder() {
   TFilePath fp;
 
-  TProject *project =
-      TProjectManager::instance()->getCurrentProject().getPointer();
+  auto project      = TProjectManager::instance()->getCurrentProject();
   ToonzScene *scene = TApp::instance()->getCurrentScene()->getScene();
 
   if (scene) fp = scene->decodeFilePath(project->getProjectFolder());
@@ -1673,8 +1680,7 @@ bool SaveLevelAsPopup::execute() {
 }
 
 void SaveLevelAsPopup::initFolder() {
-  TProject *project =
-      TProjectManager::instance()->getCurrentProject().getPointer();
+  auto project      = TProjectManager::instance()->getCurrentProject();
   ToonzScene *scene = TApp::instance()->getCurrentScene()->getScene();
   TFilePath fp;
   if (scene) fp = scene->decodeFilePath(project->getFolder(TProject::Drawings));
@@ -1928,7 +1934,7 @@ LoadColorModelPopup::LoadColorModelPopup()
 
   // layout
   QHBoxLayout *mainLayout = new QHBoxLayout();
-  mainLayout->setMargin(5);
+  mainLayout->setContentsMargins(5, 5, 5, 5);
   mainLayout->setSpacing(5);
   {
     mainLayout->addStretch(1);
@@ -2118,38 +2124,97 @@ bool ReplaceParentDirectoryPopup::execute() {
 
   // check if the file exists. If exists, load it and store them in the map
   // rewrite the path in the level settings
-  bool somethingChanged                 = false;
+  bool somethingChanged = false;
+
+  struct levelPathInfo {
+    QString levelName;
+    int depth         = -1;
+    TFilePath oldPath = TFilePath();
+    TFilePath newPath = TFilePath();
+  };
+  QList<levelPathInfo> levelPathInfos;
+
   std::vector<TXshLevel *>::iterator it = levelsToBeReplaced.begin();
   for (; it != levelsToBeReplaced.end(); it++) {
     TFilePath orgPath = (*it)->getPath();
     if (orgPath.isEmpty()) continue;
 
-    TFilePath newPath = orgPath.withParentDir(fp);
+    bool changed = false;
+    // search parent folders to replace
+    TFilePath tmpParentPath = orgPath.getParentDir();
+    int depth               = 0;
+    // For now, search only the parent folders up to three levels high.
+    while (depth < 3) {
+      TFilePath tail    = orgPath - tmpParentPath;
+      TFilePath newPath = fp + tail;
 
-    if (orgPath == newPath) continue;
+      if (orgPath == newPath) break;
 
-    // If the file exists
-    if (TSystem::doesExistFileOrLevel(newPath)) {
-      TXshSimpleLevel *sl = (*it)->getSimpleLevel();
-      if (!sl) continue;
+      // If the file exists
+      if (TSystem::doesExistFileOrLevel(newPath)) {
+        TXshSimpleLevel *sl = (*it)->getSimpleLevel();
+        if (!sl) break;
 
-      // replace the file with aliases, if possible
-      newPath = TApp::instance()->getCurrentScene()->getScene()->codeFilePath(
-          newPath);
+        // replace the file with aliases, if possible
+        newPath = TApp::instance()->getCurrentScene()->getScene()->codeFilePath(
+            newPath);
 
-      sl->setPath(newPath);
-      sl->invalidateFrames();
-      std::vector<TFrameId> frames;
-      sl->getFids(frames);
-      std::vector<TFrameId>::iterator f_it = frames.begin();
-      for (; f_it != frames.end(); f_it++)
-        IconGenerator::instance()->invalidate(sl, *f_it);
+        sl->setPath(newPath);
+        sl->invalidateFrames();
+        std::vector<TFrameId> frames;
+        sl->getFids(frames);
+        std::vector<TFrameId>::iterator f_it = frames.begin();
+        for (; f_it != frames.end(); f_it++)
+          IconGenerator::instance()->invalidate(sl, *f_it);
 
-      somethingChanged = true;
+        somethingChanged = true;
+        changed          = true;
+        levelPathInfos.append(
+            {QString::fromStdWString(sl->getName()), depth, orgPath, newPath});
+        break;
+      }
+
+      if (tmpParentPath.isRoot() || tmpParentPath.isEmpty()) break;
+
+      tmpParentPath = tmpParentPath.getParentDir();
+      depth++;
     }
+
+    if (!changed)
+      levelPathInfos.append({QString::fromStdWString((*it)->getName())});
   }
 
   if (!somethingChanged) return false;
+
+  // if some level path is replaced with subfolders or some level has skipped,
+  // the result dialog appears.
+  bool wasNormallyDone = true;
+  for (auto info : levelPathInfos) {
+    if (info.depth != 0) {
+      wasNormallyDone = false;
+      break;
+    }
+  }
+  if (!wasNormallyDone) {
+    // sort by level name
+    std::sort(levelPathInfos.begin(), levelPathInfos.end(),
+              [](const levelPathInfo &i1, const levelPathInfo &i2) -> bool {
+                return i1.levelName < i2.levelName;
+              });
+
+    QString msg = tr("The level paths have been replaced as follows:\n\n");
+    for (auto info : levelPathInfos) {
+      if (info.depth == -1)
+        msg += tr("%1 : No change was made.\n").arg(info.levelName);
+      else
+        msg += tr("%1 : %2 -> %3\n")
+                   .arg(info.levelName)
+                   .arg(info.oldPath.getQString())
+                   .arg(info.newPath.getQString());
+    }
+
+    DVGui::MsgBox(DVGui::WARNING, msg);
+  }
 
   TApp::instance()->getCurrentLevel()->notifyLevelChange();
   TApp::instance()->getCurrentScene()->notifySceneChanged();
@@ -2191,8 +2256,7 @@ bool ImportMagpieFilePopup::execute() {
 }
 
 void ImportMagpieFilePopup::initFolder() {
-  TProject *project =
-      TProjectManager::instance()->getCurrentProject().getPointer();
+  auto project      = TProjectManager::instance()->getCurrentProject();
   ToonzScene *scene = TApp::instance()->getCurrentScene()->getScene();
   TFilePath fp;
   if (scene) fp = scene->decodeFilePath(project->getFolder(TProject::Drawings));
@@ -2209,7 +2273,8 @@ void ImportMagpieFilePopup::showEvent(QShowEvent *e) {
 
 BrowserPopup::BrowserPopup() : FileBrowserPopup("") {
   setOkText(tr("Choose"));
-  m_browser->enableGlobalSelection(false);
+  // DIRTY FIX!!!! this should never cause crash
+  m_browser->enableGlobalSelection(true);
 }
 
 bool BrowserPopup::execute() {
@@ -2231,8 +2296,7 @@ bool BrowserPopup::execute() {
 void BrowserPopup::initFolder(TFilePath path) {
   // if the path is empty
   if (path.isEmpty()) {
-    TProject *project =
-        TProjectManager::instance()->getCurrentProject().getPointer();
+    auto project      = TProjectManager::instance()->getCurrentProject();
     ToonzScene *scene = TApp::instance()->getCurrentScene()->getScene();
     if (scene)
       setFolder(scene->decodeFilePath(project->getFolder(TProject::Drawings)));

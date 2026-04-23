@@ -13,7 +13,6 @@
 // TnzQt includes
 #include "toonzqt/menubarcommand.h"
 #include "toonzqt/flipconsole.h"
-#include "toonzqt/glwidget_for_highdpi.h"
 
 // TnzTools includes
 #include "tools/tool.h"
@@ -63,14 +62,15 @@ public:
 // SceneViewer
 //-----------------------------------------------------------------------------
 
-class SceneViewer final : public GLWidgetForHighDpi,
-                          public TTool::Viewer,
-                          public Previewer::Listener {
+class SceneViewer final : public TToolViewer, public Previewer::Listener {
   Q_OBJECT
 
   double m_pressure;
   QPointF m_lastMousePos;
   QPointF m_pos;
+  TPointD m_toolPos;
+  bool m_toolHasAssistants = false;
+  std::vector<TPointD> m_toolReplicatedPoints;
   Qt::MouseButton m_mouseButton;
   bool m_foregroundDrawing;
   bool m_tabletEvent, m_tabletMove;
@@ -92,6 +92,12 @@ class SceneViewer final : public GLWidgetForHighDpi,
   bool m_rotating                        = false;
   bool m_zooming                         = false;
   bool m_panning                         = false;
+
+  TPointD m_oldPos;
+  bool m_dragging;
+  int m_mouseScrubbing = 0;
+  QAction *m_keyAction = nullptr;
+
   QPointF m_firstPanPoint;
   QPointF m_undoPoint;
   double m_scaleFactor;    // used for zoom gesture
@@ -142,6 +148,7 @@ class SceneViewer final : public GLWidgetForHighDpi,
   TRectD m_clipRect;
 
   bool m_isPicking;
+  bool m_showViewerIndicators = true;
 
   TRaster32P m_3DSideL;
   TRaster32P m_3DSideR;
@@ -169,7 +176,6 @@ class SceneViewer final : public GLWidgetForHighDpi,
     TOP_3D,
   } m_current3DDevice;
 
-  LocatorPopup *m_locator;
   bool m_isLocator;
   bool m_isStyleShortcutSwitchable;
 
@@ -231,6 +237,8 @@ public:
   //! Return the view matrix.
   //! The view matrix is a matrix contained in \b m_viewAff
   TAffine getSceneMatrix() const;
+
+  TAffine4 get3dViewMatrix() const override;
 
   void setViewMatrix(const TAffine &aff, int viewMode);
 
@@ -317,6 +325,7 @@ protected:
   void drawCameraStand();
   void drawPreview();
   void drawOverlay();
+  void drawViewerIndicators();
 
   void drawScene();
   void drawToolGadgets();
@@ -363,10 +372,12 @@ protected:
   // center: window coordinate, pixels, topleft origin
   void zoomQt(const QPoint &center, double scaleFactor);
 
-  // overridden from TTool::Viewer
+  void mouseScrub(const TMouseEvent &e);
+
+  // overridden from TToolViewer
   void pan(const TPointD &delta) override { panQt(QPointF(delta.x, delta.y)); }
 
-  // overridden from TTool::Viewer
+  // overridden from TToolViewer
   void zoom(const TPointD &center, double factor) override;
   void rotate(const TPointD &center, double angle) override;
   void rotate3D(double dPhi, double dTheta) override;
@@ -413,6 +424,8 @@ public slots:
   void setActualPixelSize();
   void flipX();
   void flipY();
+  void rotateLeft();
+  void rotateRight();
   void zoomIn();
   void zoomOut();
   void onXsheetChanged();

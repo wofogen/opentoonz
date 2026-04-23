@@ -1,7 +1,7 @@
 
 
 #include "toonzqt/menubarcommand.h"
-//#include "menubarcommandids.h"
+// #include "menubarcommandids.h"
 #include "toonzqt/dvdialog.h"
 #include "toonzqt/gutil.h"
 #include "toonz/toonzfolders.h"
@@ -399,7 +399,7 @@ void CommandManager::enlargeIcon(CommandId id, const QSize dstSize) {
   if (!action) return;
 
   const char *iconSVGName = getIconSVGName(id);
-  if (iconSVGName == "") return;
+  if (strcmp(iconSVGName, "") == 0) return;
 
   QIcon icon = action->icon();
 
@@ -410,46 +410,63 @@ void CommandManager::enlargeIcon(CommandId id, const QSize dstSize) {
       return;
   }
 
-  addSpecifiedSizedImageToIcon(icon, iconSVGName, dstSize);
-
   action->setIcon(icon);
 }
 
 //---------------------------------------------------------
 // load user defined shortcuts
 
+// In menubarcommand.cpp
 void CommandManager::loadShortcuts() {
+  // Load shortcuts file
   TFilePath fp = ToonzFolder::getMyModuleDir() + TFilePath("shortcuts.ini");
+
   if (!TFileStatus(fp).doesExist()) {
-    // if user shortcut file does not exist, then try to load from template
     TFilePath tmplFp =
         ToonzFolder::getTemplateModuleDir() + TFilePath("shortcuts.ini");
-    if (TFileStatus(tmplFp).doesExist()) TSystem::copyFile(fp, tmplFp);
-    // if neither settings exist, do nothing and return
-    else
+    if (TFileStatus(tmplFp).doesExist()) {
+      TSystem::copyFile(fp, tmplFp);
+    } else {
       return;
+    }
   }
 
   QSettings settings(toQString(fp), QSettings::IniFormat);
   settings.beginGroup("shortcuts");
   QStringList ids = settings.allKeys();
+
   for (int i = 0; i < ids.size(); i++) {
     std::string id   = ids.at(i).toStdString();
     QString shortcut = settings.value(ids.at(i), "").toString();
-    QAction *action  = getAction(&id[0], false);
+
+    QAction *action = getAction(&id[0], false);
+
+    // Process non-reserved shortcuts
     if (action) {
       QString oldShortcut = action->shortcut().toString();
-      if (oldShortcut == shortcut) continue;
-      if (!oldShortcut.isEmpty())
+
+      if (oldShortcut == shortcut) {
+        continue;
+      }
+
+      // Remove old shortcut mapping
+      if (!oldShortcut.isEmpty()) {
         m_shortcutTable.erase(oldShortcut.toStdString());
+      }
+
+      // Set new shortcut
       if (!shortcut.isEmpty()) {
         QAction *other = getActionFromShortcut(shortcut.toStdString());
-        if (other) other->setShortcut(QKeySequence());
+        if (other) {
+          other->setShortcut(QKeySequence());
+        }
         m_shortcutTable[shortcut.toStdString()] = getNode(&id[0]);
       }
+
       action->setShortcut(QKeySequence(shortcut));
     }
   }
+
   settings.endGroup();
 }
 

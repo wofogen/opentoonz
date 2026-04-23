@@ -18,6 +18,8 @@
 #include "toonz/levelset.h"
 #include "toonz/toonzscene.h"
 #include "toonz/txshsimplelevel.h"
+#include "toonz/txshpalettelevel.h"
+#include "toonz/txshsoundlevel.h"
 #include "toonz/txshleveltypes.h"
 
 // TnzQt includes
@@ -468,7 +470,7 @@ CastBrowser::CastBrowser(QWidget *parent, Qt::WindowFlags flags)
   QFrame *box = new QFrame(this);
   box->setFrameStyle(QFrame::StyledPanel);
   QVBoxLayout *boxLayout = new QVBoxLayout(box);
-  boxLayout->setMargin(0);
+  boxLayout->setContentsMargins(0, 0, 0, 0);
   boxLayout->setSpacing(0);
 
   m_folderName = new QLabel("", box);
@@ -481,7 +483,9 @@ CastBrowser::CastBrowser(QWidget *parent, Qt::WindowFlags flags)
   castSelection->setBrowser(this);
   viewerPanel->setSelection(castSelection);
   viewerPanel->addColumn(DvItemListModel::FrameCount, 50);
+  viewerPanel->addColumn(DvItemListModel::FullPath, 300);
   m_itemViewer->setModel(this);
+  m_itemViewer->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
   DvItemViewerTitleBar *titleBar = new DvItemViewerTitleBar(m_itemViewer, box);
   // titleBar->hide();
@@ -627,7 +631,16 @@ QVariant CastBrowser::getItemData(int index, DataType dataType,
     return item->getToolTip();
   else if (dataType == FrameCount)
     return item->getFrameCount();
-  else if (dataType == VersionControlStatus) {
+  else if (dataType == FullPath) {
+    ToonzScene *scene   = TApp::instance()->getCurrentScene()->getScene();
+    TXshSimpleLevel *sl = item->getSimpleLevel();
+    if (sl) return scene->decodeFilePath(sl->getPath()).getQString();
+    TXshPaletteLevel *pl = item->getPaletteLevel();
+    if (pl) return scene->decodeFilePath(pl->getPath()).getQString();
+    TXshSoundLevel *ml = item->getSoundLevel();
+    if (ml) return scene->decodeFilePath(ml->getPath()).getQString();
+    return "";
+  } else if (dataType == VersionControlStatus) {
     if (!item->exists())
       return VC_Missing;
     else
@@ -719,6 +732,7 @@ QMenu *CastBrowser::getContextMenu(QWidget *parent, int index) {
   bool paletteSelected     = false;
   bool vectorLevelSelected = false;
   bool meshLevelSelected   = false;
+  bool toonzRasterLevelSelected = false;
   bool otherFileSelected   = false;
   int levelSelectedCount   = 0;
   for (it = indices.begin(); it != indices.end(); ++it) {
@@ -735,9 +749,11 @@ QMenu *CastBrowser::getContextMenu(QWidget *parent, int index) {
     }
     levelSelectedCount++;
     if (sl->getType() == PLI_XSHLEVEL)
-      vectorLevelSelected = true;
+        vectorLevelSelected = true;
     else if (sl->getType() == MESH_XSHLEVEL)
-      meshLevelSelected = true;
+        meshLevelSelected = true;
+    else if (sl->getType() == TZP_XSHLEVEL)
+        toonzRasterLevelSelected = true;
     else
       otherFileSelected = true;
   }
@@ -761,6 +777,8 @@ QMenu *CastBrowser::getContextMenu(QWidget *parent, int index) {
   // MI_ConvertToVectors if only non-vector layers were selected
   if (!audioSelected && !paletteSelected && !vectorLevelSelected)
     menu->addAction(cm->getAction(MI_ConvertToVectors));
+  if (!audioSelected && !paletteSelected && !toonzRasterLevelSelected)
+      menu->addAction(cm->getAction(MI_ConvertToToonzRaster));
   menu->addSeparator();
   menu->addAction(cm->getAction(MI_RemoveLevel));
   menu->addAction(cm->getAction(MI_RemoveUnused));

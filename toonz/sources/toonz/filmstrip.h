@@ -63,6 +63,8 @@ public:
   QSize getIconSize() const { return m_iconSize; }
   int getFrameLabelWidth() const { return m_frameLabelWidth; }
 
+  bool isOutOfBounds(int n) const;
+
   // convert mouse coordinate y to a frame index and vice versa
   int y2index(int y) const;
   int index2y(int index) const;
@@ -236,7 +238,7 @@ class Filmstrip final : public QWidget, public SaveLoadQSettings {
   bool m_showComboBox  = true;
 
 public:
-  Filmstrip(QWidget *parent = 0, Qt::WindowFlags flags = 0);
+  Filmstrip(QWidget *parent = 0, Qt::WindowFlags flags = Qt::WindowFlags());
   ~Filmstrip();
 
   // SaveLoadQSettings

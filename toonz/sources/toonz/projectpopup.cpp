@@ -50,10 +50,12 @@ enum { Rule_Standard = 0, Rule_Custom };
 //-----------------------------------------------------------------------------
 
 QPixmap ProjectDvDirModelProjectNode::getPixmap(bool isOpen) const {
-  static QPixmap openProjectPixmap(
-      svgToPixmap(getIconThemePath("actions/18/folder_project_on.svg")));
-  static QPixmap closeProjectPixmap(
-      svgToPixmap(getIconThemePath("actions/18/folder_project.svg")));
+  static QPixmap openProjectPixmap =
+      createQIcon("folder_project")
+          .pixmap(QSize(18, 18), QIcon::Normal, QIcon::On);
+  static QPixmap closeProjectPixmap =
+      createQIcon("folder_project")
+          .pixmap(QSize(18, 18), QIcon::Normal, QIcon::Off);
   return isOpen ? openProjectPixmap : closeProjectPixmap;
 }
 
@@ -107,7 +109,8 @@ void ProjectDvDirModelRootNode::refreshChildren() {
           new ProjectDvDirModelSpecialFileFolderNode(
               this, L"Project root (" + rootDir + L")", projectRoot);
       projectRootNode->setPixmap(
-          svgToPixmap(getIconThemePath("actions/18/folder_project_root.svg")));
+          createQIcon("folder_project_root")
+              .pixmap(QSize(18, 18), QIcon::Normal, QIcon::Off));
       addChild(projectRootNode);
     }
 
@@ -326,7 +329,7 @@ Note that this mode uses regular expression for file name validation and may slo
   m_letterCountCombo->addItem(tr("Unlimited"), 0);
 
   //----layout
-  m_topLayout->setMargin(5);
+  m_topLayout->setContentsMargins(5, 5, 5, 5);
   m_topLayout->setSpacing(10);
   {
     m_topLayout->addWidget(tabWidget, 1);
@@ -335,13 +338,13 @@ Note that this mode uses regular expression for file name validation and may slo
 
     QWidget *projectFolderPanel = new QWidget(this);
     QVBoxLayout *pfLayout       = new QVBoxLayout();
-    pfLayout->setMargin(5);
+    pfLayout->setContentsMargins(5, 5, 5, 5);
     pfLayout->setSpacing(10);
     {
       pfLayout->addWidget(m_treeView, 0);
 
       QGridLayout *upperLayout = new QGridLayout();
-      upperLayout->setMargin(5);
+      upperLayout->setContentsMargins(5, 5, 5, 5);
       upperLayout->setHorizontalSpacing(5);
       upperLayout->setVerticalSpacing(10);
       {
@@ -392,7 +395,7 @@ Note that this mode uses regular expression for file name validation and may slo
     // file path settings
     QWidget *filePathPanel = new QWidget(this);
     QVBoxLayout *fpLayout  = new QVBoxLayout();
-    fpLayout->setMargin(5);
+    fpLayout->setContentsMargins(5, 5, 5, 5);
     fpLayout->setSpacing(10);
     {
       fpLayout->addWidget(standardRB, 0);
@@ -400,7 +403,7 @@ Note that this mode uses regular expression for file name validation and may slo
 
       // add some indent
       QGridLayout *customLay = new QGridLayout();
-      customLay->setMargin(10);
+      customLay->setContentsMargins(10, 10, 10, 10);
       customLay->setHorizontalSpacing(10);
       customLay->setVerticalSpacing(10);
       {
@@ -455,7 +458,7 @@ void ProjectPopup::updateChooseProjectCombo() {
     }
   }
   // Add in project of current project if outside known Project root folders
-  TProjectP currentProject   = pm->getCurrentProject();
+  auto currentProject        = pm->getCurrentProject();
   TFilePath currentProjectFP = currentProject->getProjectPath();
   if (m_projectPaths.indexOf(currentProjectFP) == -1) {
     m_projectPaths.push_back(currentProjectFP);
@@ -472,7 +475,7 @@ void ProjectPopup::updateChooseProjectCombo() {
 
 //-----------------------------------------------------------------------------
 
-void ProjectPopup::updateFieldsFromProject(TProject *project) {
+void ProjectPopup::updateFieldsFromProject(std::shared_ptr<TProject> project) {
   m_nameFld->setText(toQString(project->getName()));
   int i;
   for (i = 0; i < m_folderFlds.size(); i++) {
@@ -504,7 +507,7 @@ void ProjectPopup::updateFieldsFromProject(TProject *project) {
 
 //-----------------------------------------------------------------------------
 
-void ProjectPopup::updateProjectFromFields(TProject *project) {
+void ProjectPopup::updateProjectFromFields(std::shared_ptr<TProject> project) {
   int i;
   for (i = 0; i < m_folderFlds.size(); i++) {
     std::string folderName = m_folderFlds[i].first;
@@ -537,8 +540,8 @@ void ProjectPopup::updateProjectFromFields(TProject *project) {
 //-----------------------------------------------------------------------------
 
 void ProjectPopup::onProjectSwitched() {
-  TProjectP currentProject = TProjectManager::instance()->getCurrentProject();
-  updateFieldsFromProject(currentProject.getPointer());
+  auto currentProject = TProjectManager::instance()->getCurrentProject();
+  updateFieldsFromProject(currentProject);
 }
 
 //-----------------------------------------------------------------------------
@@ -548,8 +551,8 @@ void ProjectPopup::showEvent(QShowEvent *) {
   DvDirModelNode *rootNode = m_model->getNode(QModelIndex());
   QModelIndex index        = m_model->getIndexByNode(rootNode);
   m_model->refreshFolderChild(index);
-  TProjectP currentProject = TProjectManager::instance()->getCurrentProject();
-  updateFieldsFromProject(currentProject.getPointer());
+  auto currentProject = TProjectManager::instance()->getCurrentProject();
+  updateFieldsFromProject(currentProject);
   updateChooseProjectCombo();
 }
 
@@ -608,16 +611,15 @@ void ProjectSettingsPopup::onChooseProjectChanged(int index) {
   TProjectManager *pm = TProjectManager::instance();
   pm->setCurrentProjectPath(projectFp);
 
-  TProject *projectP =
-      TProjectManager::instance()->getCurrentProject().getPointer();
+  auto project = TProjectManager::instance()->getCurrentProject();
 
   // In case the project file was upgraded to current version, save it now
-  if (projectP->getProjectPath() != projectFp) {
-    m_projectPaths[index] = projectP->getProjectPath();
-    projectP->save();
+  if (project->getProjectPath() != projectFp) {
+    m_projectPaths[index] = project->getProjectPath();
+    project->save();
   }
 
-  updateFieldsFromProject(projectP);
+  updateFieldsFromProject(project);
   IoCmd::saveSceneIfNeeded("Change project");
   IoCmd::newScene();
 }
@@ -625,8 +627,8 @@ void ProjectSettingsPopup::onChooseProjectChanged(int index) {
 //-----------------------------------------------------------------------------
 
 void ProjectSettingsPopup::onSomethingChanged() {
-  TProjectP project = TProjectManager::instance()->getCurrentProject();
-  updateProjectFromFields(project.getPointer());
+  auto project = TProjectManager::instance()->getCurrentProject();
+  updateProjectFromFields(project);
   try {
     project->save();
   } catch (TSystemException se) {
@@ -659,7 +661,7 @@ ProjectCreatePopup::ProjectCreatePopup() : ProjectPopup(true) {
   connect(okBtn, SIGNAL(clicked()), this, SLOT(createProject()));
   connect(cancelBtn, SIGNAL(clicked()), this, SLOT(reject()));
 
-  m_buttonLayout->setMargin(0);
+  m_buttonLayout->setContentsMargins(0, 0, 0, 0);
   m_buttonLayout->setSpacing(20);
   {
     m_buttonLayout->addStretch();
@@ -719,9 +721,9 @@ void ProjectCreatePopup::createProject() {
 
   TFilePath projectFolder = currentProjectRoot + projectName;
   TFilePath projectPath   = pm->projectFolderToProjectPath(projectFolder);
-  TProject *project       = new TProject();
+  auto project            = std::make_shared<TProject>();
   updateProjectFromFields(project);
-  TProjectP currentProject = pm->getCurrentProject();
+  auto currentProject = pm->getCurrentProject();
   project->setSceneProperties(currentProject->getSceneProperties());
   try {
     bool isSaved = project->save(projectPath);

@@ -196,7 +196,8 @@ public:
                {FlipConsole::eFilledRaster, FlipConsole::eDefineSubCamera,
                 FlipConsole::eLocator, FlipConsole::eZoomIn,
                 FlipConsole::eZoomOut, FlipConsole::eFlipHorizontal,
-                FlipConsole::eFlipVertical, FlipConsole::eResetView},
+                FlipConsole::eFlipVertical, FlipConsole::eResetView,
+                FlipConsole::eRotateLeft, FlipConsole::eRotateRight},
            UCHAR flags = 0, bool isColorModel = false);
   ~FlipBook();
   void setLevel(const TFilePath &path, TPalette *palette = 0, int from = -1,

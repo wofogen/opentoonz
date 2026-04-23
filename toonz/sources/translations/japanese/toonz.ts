@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="ja_JP" sourcelanguage="en">
+<TS version="2.1" language="ja_JP" sourcelanguage="en_US">
 <context>
     <name>AddFilmstripFramesPopup</name>
     <message>
@@ -775,6 +775,32 @@ Stop it or wait for its completion before removing it.</source>
     <message>
         <source>Image</source>
         <translation>画像</translation>
+    </message>
+    <message>
+        <source>Export Board Image</source>
+        <translation>ボールド画像を書き出し</translation>
+    </message>
+    <message>
+        <source>File Name Suffix:</source>
+        <translation>ファイル名接尾辞：</translation>
+    </message>
+    <message>
+        <source>File name suffix can&apos;t be empty.</source>
+        <translation>ファイル名接尾辞が空です。</translation>
+    </message>
+    <message>
+        <source>There is no board image to export.</source>
+        <translation>書き出すボールド画像がありません。</translation>
+    </message>
+    <message>
+        <source>It is not possible to save because the selected file format is not supported.</source>
+        <translation>選択したファイル形式は対応されていないため、保存できません。</translation>
+    </message>
+    <message>
+        <source>File %1 already exists.
+Do you want to overwrite it?</source>
+        <translation>ファイル %1 は既に存在します。
+上書きしてもよろしいですか？</translation>
     </message>
 </context>
 <context>
@@ -1887,7 +1913,7 @@ What do you want to do? </source>
     </message>
     <message>
         <source>Convert 1 Level</source>
-        <translation>１つのレベルを変換</translation>
+        <translation type="vanished">１つのレベルを変換</translation>
     </message>
     <message>
         <source>Convert %1 Levels</source>
@@ -2075,7 +2101,7 @@ What do you want to do? </source>
 be appended to the palette after conversion in 
 order to save the effort of creating styles 
 before color designing.</source>
-        <translation>このオプションがONのとき、デフォルトパレット ($TOONZSTUDIOPALETTE\cleanup_default.tpl)
+        <translation type="vanished">このオプションがONのとき、デフォルトパレット ($TOONZSTUDIOPALETTE\cleanup_default.tpl)
 のスタイルが変換後のパレットに追加されます。色見本を作成する際に、スタイルを新規作成する
 手間を省くことができます。</translation>
     </message>
@@ -2111,6 +2137,18 @@ contain the dpi information, then the current camera dpi will be used.
     <message>
         <source>Level %1 converting to same file format; skipped.</source>
         <translation>レベル %1 は変換前と同じファイル形式が指定されているのでスキップします。</translation>
+    </message>
+    <message>
+        <source>When activated, styles of the default palette
+($TOONZSTUDIOPALETTE\Global Palettes\Default Palettes\Cleanup_Palette.tpl) will 
+be appended to the palette after conversion in 
+order to save the effort of creating styles 
+before color designing.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Convert 1 Level : %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2554,6 +2592,33 @@ contain the dpi information, then the current camera dpi will be used.
     </message>
 </context>
 <context>
+    <name>ExportAllLevelsPopup</name>
+    <message>
+        <source>Export All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Skip</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No level found in the camera view or levels are null!!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please select a Folder!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>It is not possible to create the %1 folder.</source>
+        <translation type="unfinished">%1 フォルダを作成できません。</translation>
+    </message>
+    <message>
+        <source>Export failed,please delete exported files and try again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ExportCalibrationFilePopup</name>
     <message>
         <source>Export Camera Calibration Settings</source>
@@ -2749,11 +2814,35 @@ contain the dpi information, then the current camera dpi will be used.
     </message>
     <message>
         <source>The file name cannot be empty or contain any of the following characters:(new line)  \ / : * ? &quot;  |</source>
-        <translation>ファイル名は空であることができません。また、次の記号のどれかを含むことができません： :(new line)  \ / : * ? &quot;  |</translation>
+        <translation type="vanished">ファイル名は空であることができません。また、次の記号のどれかを含むことができません： :(new line)  \ / : * ? &quot;  |</translation>
     </message>
     <message>
         <source>File Browser</source>
         <translation>ファイルブラウザ</translation>
+    </message>
+    <message>
+        <source>Export Level: No Level Selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export Level: %1 Level Selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please select a folder!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please select at least one level(column).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>It is not possible to create the %1 folder.</source>
+        <translation type="unfinished">%1 フォルダを作成できません。</translation>
+    </message>
+    <message>
+        <source>Please type file name!</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2830,6 +2919,10 @@ contain the dpi information, then the current camera dpi will be used.
         <source>Height: </source>
         <translation>高さ： </translation>
     </message>
+    <message>
+        <source>Create Folder(equal file name)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ExportOCACommand</name>
@@ -2843,7 +2936,7 @@ contain the dpi information, then the current camera dpi will be used.
     </message>
     <message>
         <source>Frame Offset: </source>
-        <translation>開始フレーム： </translation>
+        <translation type="vanished">開始フレーム： </translation>
     </message>
     <message>
         <source>Checked: Images are saved as EXR
@@ -2859,7 +2952,7 @@ Unchecked: Vectors are saved as SVG</source>
     </message>
     <message>
         <source>Starting Frame Offset</source>
-        <translation>開始フレームのオフセット</translation>
+        <translation type="vanished">開始フレームのオフセット</translation>
     </message>
     <message>
         <source>Hide</source>
@@ -2872,6 +2965,15 @@ Unchecked: Vectors are saved as SVG</source>
     <message>
         <source>Starting...</source>
         <translation>開始しています...</translation>
+    </message>
+    <message>
+        <source>Export Reference Layers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Checked: Layers with Preview Visible OFF are also exported
+Unchecked: Only layers with Preview Visible ON are exported</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2951,12 +3053,20 @@ Unchecked: Vectors are saved as SVG</source>
         <source>Project &apos;%1&apos; already exists</source>
         <translation>プロジェクト &apos;%1&apos; は、既に存在します</translation>
     </message>
+    <message>
+        <source>Export as Standalone Scene</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export To:</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ExportXDTSCommand</name>
     <message>
         <source>None</source>
-        <translation>なし</translation>
+        <translation type="vanished">なし</translation>
     </message>
     <message>
         <source>All columns</source>
@@ -3202,6 +3312,14 @@ Do you want to create it?</source>
     <message>
         <source>Frame length:</source>
         <translation>フレームの長さ：</translation>
+    </message>
+    <message>
+        <source>Export CSV</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to create file %1.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3980,15 +4098,15 @@ Do you want to overwrite it?</source>
     <name>LayerHeaderPanel</name>
     <message>
         <source>Preview Visibility Toggle All</source>
-        <translation>全ての有効/無効を切り替え</translation>
+        <translation type="vanished">全ての有効/無効を切り替え</translation>
     </message>
     <message>
         <source>Camera Stand Visibility Toggle All</source>
-        <translation>全てのメインビューアに表示/非表示を切り替え</translation>
+        <translation type="vanished">全てのメインビューアに表示/非表示を切り替え</translation>
     </message>
     <message>
         <source>Lock Toggle All</source>
-        <translation>全てのロックを切り替え</translation>
+        <translation type="vanished">全てのロックを切り替え</translation>
     </message>
 </context>
 <context>
@@ -4110,6 +4228,10 @@ Do you want to create it?</source>
     <message>
         <source>Frame Format</source>
         <translation>フレーム形式</translation>
+    </message>
+    <message>
+        <source>Assistants Level</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4861,7 +4983,7 @@ Please use the frame numbers for reference.</source>
     </message>
     <message>
         <source>&amp;Save Scene</source>
-        <translation>シーンを保存 (&amp;S)</translation>
+        <translation type="vanished">シーンを保存 (&amp;S)</translation>
     </message>
     <message>
         <source>&amp;Save Scene As...</source>
@@ -4933,7 +5055,7 @@ Please use the frame numbers for reference.</source>
     </message>
     <message>
         <source>&amp;Save Default Settings</source>
-        <translation>現在のシーン設定を既定値としてプロジェクト設定に保存 (&amp;S)</translation>
+        <translation type="vanished">現在のシーン設定を既定値としてプロジェクト設定に保存 (&amp;S)</translation>
     </message>
     <message>
         <source>&amp;Output Settings...</source>
@@ -6649,7 +6771,7 @@ Please use the frame numbers for reference.</source>
     </message>
     <message>
         <source>Vectors to Toonz Raster</source>
-        <translation>ベクターからToonzラスターに変換</translation>
+        <translation type="vanished">ベクターからToonzラスターに変換</translation>
     </message>
     <message>
         <source>Replace Vectors with Simplified Vectors</source>
@@ -7568,6 +7690,58 @@ or you may delete necessary files for it.</source>
     <message>
         <source>&amp;Paste Cell Content</source>
         <translation>コマの内容を貼り付け (&amp;P)</translation>
+    </message>
+    <message>
+        <source>Import Open Cel Animation (OCA)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;New Assistant Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle Sub-Xsheet Navigation Bar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit Assistants</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show build date in title</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Save Scene Only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Set Scene Settings as Default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Export All Levels... </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Convert to Toonz Raster...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Shift Origin</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Locator</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle Viewer Indicators</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Eraser Type - MultiArc</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8863,6 +9037,18 @@ Custom : Always use the custom dpi specified here.</source>
         <source>Custom</source>
         <translation>カスタム</translation>
     </message>
+    <message>
+        <source>Save Current Image Adjust Parameters As Default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>BG Reduction is set but the White BG image is missing. Please capture the White BG again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Do you want to save the current parameters as the default values?</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PencilTestSaveInFolderPopup</name>
@@ -9870,7 +10056,7 @@ if both are possible on coding file path.</source>
     </message>
     <message>
         <source>Expand Function Editor Header to Match Xsheet Toolbar Height*</source>
-        <translation>パラメータエディタのヘッダの余白を、タイムシートツールバーに揃えて調整する *</translation>
+        <translation type="vanished">パラメータエディタのヘッダの余白を、タイムシートツールバーに揃えて調整する *</translation>
     </message>
     <message>
         <source>Colors</source>
@@ -10106,7 +10292,7 @@ in non alpha-enabled image format.</source>
     </message>
     <message>
         <source>Switch to dark icons</source>
-        <translation>暗色のアイコンに切り替える</translation>
+        <translation type="vanished">暗色のアイコンに切り替える</translation>
     </message>
     <message>
         <source>Level Strip Thumbnail Size*:</source>
@@ -10146,7 +10332,7 @@ in non alpha-enabled image format.</source>
     </message>
     <message>
         <source>Icon Theme*:</source>
-        <translation>アイコンのテーマ*:</translation>
+        <translation type="vanished">アイコンのテーマ*:</translation>
     </message>
     <message>
         <source>Show Icons In Menu*</source>
@@ -10308,6 +10494,73 @@ but a random crash might occur, use at your own risk.</source>
     <message>
         <source>Overwrite Paste Cell Numbers</source>
         <translation>動画番号を上書きして貼り付ける</translation>
+    </message>
+    <message>
+        <source>Show Sub-Xsheet Navigation Bar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Expand Function Editor Header to Match Xsheet Header Height*</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unify Preview and Camstand Visibility Toggles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Link Column Name with Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disable Dragging Cells</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Xsheet Tools</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This option will do the following:
+- When setting a cell in the empty column, level name will be copied to the column name
+- Typing the cell without level name in the empty column will try to use a level with the same name as the column
+The behavior may be changed in the future development.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Viewer Indicators</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rasterize Vector with Anti Aliasing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Normalize Imported Image Sequences:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use Inverted Cursor at Stroke End</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Click Twice to Create Arcs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Always Drag Frame Cell</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Always ask before renaming</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Normalize sequence names automatically</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Keep original filenames</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -11274,7 +11527,7 @@ Some levels have not been loaded because their version is not supported</source>
     </message>
     <message>
         <source>Save the scene first</source>
-        <translation>先にシーンを保存してください</translation>
+        <translation type="vanished">先にシーンを保存してください</translation>
     </message>
     <message>
         <source>It is not possible to load the %1 level.</source>
@@ -12134,7 +12387,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Skipping frame.</source>
-        <translation>フレームをスキップしています。</translation>
+        <translation type="vanished">フレームをスキップしています。</translation>
     </message>
     <message>
         <source>Always do this action.</source>
@@ -12990,11 +13243,11 @@ Do you wish to continue loading the last good save or stop and try to salvage th
     </message>
     <message>
         <source>Cell Mark for Inbetween Symbol 1 (O)</source>
-        <translation>中割り記号1 （○）に対応するコママーク</translation>
+        <translation type="vanished">中割り記号1 （○）に対応するコママーク</translation>
     </message>
     <message>
         <source>Cell Mark for Inbetween Symbol 2 (*)</source>
-        <translation>中割り記号2 （●）に対応するコママーク</translation>
+        <translation type="vanished">中割り記号2 （●）に対応するコママーク</translation>
     </message>
     <message>
         <source>Target column</source>
@@ -13124,6 +13377,142 @@ What do you want to do?</source>
     <message>
         <source>[Drag&amp;Drop] to copy command to %1</source>
         <translation>[ドラッグ &amp; ドロップ] コマンドを%1にコピー (&amp;D)</translation>
+    </message>
+    <message>
+        <source>Keyframe Symbol:</source>
+        <translation>原画記号：</translation>
+    </message>
+    <message>
+        <source>Reference Frame Symbol:</source>
+        <translation>中割り参考記号：</translation>
+    </message>
+    <message>
+        <source>Unable to create OCA folder.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to open OCA file for saving.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to create folder for saving layers.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import Open Cel Animation (OCA)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OCA Import cancelled : empty filepath.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OCA Import file : %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Do you want to import or load image files from their original location?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to load OCA file: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to open OCA file for loading.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reading OCA file: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Parse error at %1 while loading OCA file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Blending mode &apos;%1&apos; not implemented for %2 &apos;%3&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Skipped %1 &apos;%2&apos;. No image file indicated.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to load images for %1 &apos;%2&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sub-layers in grouplayer &apos;%1&apos; will be imported without grouping.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Skipping unimplemented %1 &apos;%2&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ignore all future warnings and errors.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Inbetween Symbol1 (O):</source>
+        <translation>中割り記号1 （○）：</translation>
+    </message>
+    <message>
+        <source>Inbetween Symbol2 (*):</source>
+        <translation>中割り記号2 （●）：</translation>
+    </message>
+    <message>
+        <source>The visibility toggles of following columns are modified 
+due to &quot;Unify Preview and Camstand Visibility Toggles&quot; preference option : 
+  %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cell marks for XDTS symbols</source>
+        <translation>タイムシート記号に対応するコママーク</translation>
+    </message>
+    <message>
+        <source>The Keyframe and the Reference Frame symbols will be exported in an unofficial format,
+which may not be displayed correctly or may cause errors in applications other than XDTS Viewer.</source>
+        <translation>原画記号と中割参考記号は、XDTSの非公式なフォーマットでエクスポートされます。
+XDTS Viewer以外のアプリケーションでは、正しく表示されなかったり、エラーが発生する場合があります。</translation>
+    </message>
+    <message>
+        <source>Add separator for Frames</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>It is not possible to load the scene %1 because it does not belong to any project.
+Please delete scenes.xml if this scene dones&apos;t belong to any project.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OpenToonz uses an underscore (_) or dot (.) as a frame separator.
+Would you like to add a separator to the image sequence?
+
+%1 (and similar files)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No, treat as single frame.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hide Viewer Indicators</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Viewer Indicators</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fx Browser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Locator</source>
+        <translation type="unfinished">ロケーター</translation>
     </message>
 </context>
 <context>
@@ -13516,6 +13905,13 @@ These levels can&apos;t be exported with this tool.</source>
     <message>
         <source>Setting the needs-lock property to hook file...</source>
         <translation>「ロックが必要」の属性をフックファイルに設定中...</translation>
+    </message>
+</context>
+<context>
+    <name>SVNConfigWriter</name>
+    <message>
+        <source>Select</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -14154,6 +14550,13 @@ Please commit or revert changes first.</source>
     </message>
 </context>
 <context>
+    <name>SaveBoardImagePopup</name>
+    <message>
+        <source>Export Board Image</source>
+        <translation>ボールド画像を書き出し</translation>
+    </message>
+</context>
+<context>
     <name>SaveBoardPresetFilePopup</name>
     <message>
         <source>Save Clapperboard Settings As Preset</source>
@@ -14599,6 +15002,49 @@ Please commit or revert changes first.</source>
     <message>
         <source>Edit Column Color Filters</source>
         <translation>カラーフィルタの編集</translation>
+    </message>
+</context>
+<context>
+    <name>SceneViewer</name>
+    <message>
+        <source>FROZEN</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Motion Path Selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Transparency Check</source>
+        <translation type="unfinished">透明度チェック</translation>
+    </message>
+    <message>
+        <source>Ink Check</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ink#1 Check</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Paint Check</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Inks Only Check</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Black BG Check</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill Check</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gap Check</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -15208,7 +15654,7 @@ Please commit or revert changes first.</source>
     <message>
         <source>%1 is already assigned to &apos;%2&apos;
 Assign to &apos;%3&apos;?</source>
-        <translation>%1&#x3000;は既に %2 に割り当てられています。
+        <translation type="vanished">%1&#x3000;は既に %2 に割り当てられています。
 %3 に割り当てますか？</translation>
     </message>
     <message>
@@ -15218,6 +15664,29 @@ Assign to &apos;%3&apos;?</source>
     <message>
         <source>No</source>
         <translation>いいえ</translation>
+    </message>
+    <message>
+        <source>&apos;%1&apos; is already assigned to &apos;%2&apos;
+Assign to &apos;%3&apos;?</source>
+        <translation>&apos;%1&apos;&#x3000;は既に &apos;%2&apos; に割り当てられています。
+&apos;%3&apos; に割り当てますか？</translation>
+    </message>
+    <message>
+        <source>Initial sequence &apos;%1&apos; is assigned to &apos;%2&apos; which takes priority.
+Assign shortcut sequence anyway?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The Space + Shift combination is reserved for viewer rotation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The Space + Ctrl combination is reserved for viewer zoom.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The Space key is reserved for viewer navigation.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -17066,11 +17535,23 @@ Please refer to the user guide for details.</source>
     </message>
     <message>
         <source>Cell Mark for Inbetween Symbol 2 (*)</source>
-        <translation>中割り記号2 （●）に対応するコママーク</translation>
+        <translation type="vanished">中割り記号2 （●）に対応するコママーク</translation>
     </message>
     <message>
         <source>Cell Mark for Inbetween Symbol 1 (O)</source>
-        <translation>中割り記号1 （○）に対応するコママーク</translation>
+        <translation type="vanished">中割り記号1 （○）に対応するコママーク</translation>
+    </message>
+    <message>
+        <source>Cell marks for XDTS symbols</source>
+        <translation>タイムシート記号に対応するコママーク</translation>
+    </message>
+    <message>
+        <source>Inbetween Symbol1 (O):</source>
+        <translation>中割り記号1 （○）：</translation>
+    </message>
+    <message>
+        <source>Inbetween Symbol2 (*)</source>
+        <translation>中割り記号2 （●）：</translation>
     </message>
 </context>
 <context>
@@ -17098,6 +17579,29 @@ Please refer to the user guide for details.</source>
     <message>
         <source>SHEET</source>
         <translation type="vanished">シート</translation>
+    </message>
+</context>
+<context>
+    <name>XsheetGUI::BreadcrumbArea</name>
+    <message>
+        <source>  &gt;  </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>  |  </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>---</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Main</source>
+        <translation type="unfinished">実線</translation>
+    </message>
+    <message>
+        <source>Xsheet Depth:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -287,12 +287,12 @@ CameraCaptureLevelControl::CameraCaptureLevelControl(QWidget* parent)
   m_gammaFld->setToolTip(tr("Gamma Value"));
 
   QVBoxLayout* mainLay = new QVBoxLayout();
-  mainLay->setMargin(0);
+  mainLay->setContentsMargins(0, 0, 0, 0);
   mainLay->setSpacing(4);
   {
     mainLay->addWidget(m_histogram, 0, Qt::AlignHCenter);
     QHBoxLayout* fieldsLay = new QHBoxLayout();
-    fieldsLay->setMargin(1);
+    fieldsLay->setContentsMargins(1, 1, 1, 1);
     fieldsLay->setSpacing(0);
     {
       fieldsLay->addWidget(m_blackFld, 0);
@@ -399,4 +399,35 @@ void CameraCaptureLevelControl::computeLut() {
 
     p[i] = (uchar)std::floor(value * maxChannelValueF);
   }
+}
+
+//-----------------------------------------------------------------------------
+
+void CameraCaptureLevelControl::getValues(int& black, int& white,
+                                          int& threshold, double& gamma) {
+  black     = m_histogram->black();
+  white     = m_histogram->white();
+  threshold = m_histogram->threshold();
+  gamma     = (double)m_histogram->gamma();
+}
+
+//-----------------------------------------------------------------------------
+
+void CameraCaptureLevelControl::setValues(const int black, const int white,
+                                          const int threshold,
+                                          const double gamma,
+                                          const bool color_grayscale) {
+  m_whiteFld->setRange(black + 2, 255);
+  m_blackFld->setRange(0, white - 2);
+  m_blackFld->setValue(black);
+  m_whiteFld->setValue(white);
+  m_gammaFld->setValue(gamma);
+  m_thresholdFld->setValue(threshold);
+
+  m_histogram->setValues(m_blackFld->getValue(), m_whiteFld->getValue(),
+                         m_gammaFld->getValue());
+  m_histogram->setThreshold(m_thresholdFld->getValue());
+
+  setMode(color_grayscale);
+  computeLut();
 }

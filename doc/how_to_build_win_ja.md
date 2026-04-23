@@ -1,6 +1,6 @@
 # ビルド手順（Windows）
 
-Visual Studio 2019 (2015以降) と Qt 5.15 (5.9以降) でビルドできることを確認しています。
+Visual Studio 2019 (2015以降) と Qt 5.15 でビルドできることを確認しています。
 
 ## 必要なソフトウェアの導入
 
@@ -87,6 +87,7 @@ CMake上で、`WITH_CANON` オプションをONにします。
 3. 下記のファイルを `OpenToonz.exe` と同じフォルダにコピーします
   - `$opentoonz/thirdparty/glut/3.7.6/lib/glut64.dll`
   - `$opentoonz/thirdparty/glew/glew-1.9.0/bin/64bit/glew32.dll`
+  - `$opentoonzthirdparty/libmypaint/dist/64/*.dll`
   - OpenCV、libjpeg-turboの.dllファイル
 4. バイナリ版の OpenToonz のインストール先にある `srv` フォルダを `OpenToonz.exe` と同じフォルダにコピーします
   - `srv` が無くても OpenToonz は動作しますが、 mov 形式などに対応できません

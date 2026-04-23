@@ -309,7 +309,8 @@ static void searchLevelsToCleanup(
 static void addCleanupDefaultPalette(TXshSimpleLevel *sl) {
   /*- 元となるパレットはStudioPaletteフォルダに置く -*/
   TFilePath palettePath =
-      ToonzFolder::getStudioPaletteFolder() + "cleanup_default.tpl";
+      ToonzFolder::getStudioPaletteFolder() +
+      "Global Palettes\\Default Palettes\\Cleanup_Palette.tpl ";
   TFileStatus pfs(palettePath);
 
   if (!pfs.doesExist() || !pfs.isReadable()) {
@@ -585,8 +586,7 @@ int main(int argc, char *argv[]) {
   Tiio::defineStd();
 
   /*- プロジェクトのロード -*/
-  TProjectManager *pm = TProjectManager::instance();
-  TProjectP project   = pm->loadSceneProject(srcName);
+  auto project = TProjectManager::instance()->loadSceneProject(srcName);
 
   if (!project) {
     string err = "Couldn't find the project" + project->getName().getName();
@@ -629,13 +629,13 @@ int main(int argc, char *argv[]) {
   /*-- CleanupSettingsファイルパスを直接入力した場合 --*/
   else {
     try {
-      TProjectManager *pm    = TProjectManager::instance();
-      TProjectP sceneProject = pm->loadSceneProject(fp);
+      TProjectManager *pm = TProjectManager::instance();
+      auto sceneProject = pm->loadSceneProject(fp);
       if (!sceneProject) {
         cerr << "can't open project." << endl;
         return -3;
       }
-      scene->setProject(sceneProject.getPointer());
+      scene->setProject(sceneProject);
 
       /*- CleanupSettingsファイルに対応するTIFファイルが有るかチェック -*/
       TFilePath tifImagePath = fp.withType("tif");

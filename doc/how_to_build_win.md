@@ -1,4 +1,3 @@
-
 # Building on Windows
 
 This software can be built using Visual Studio 2019 and Qt 5.x
@@ -16,10 +15,10 @@ This software can be built using Visual Studio 2019 and Qt 5.x
 ### Qt
 - https://www.qt.io/download-open-source/
 - Qt is a cross-platform GUI framework.
-- Install Qt 5.9 or higher (64-bit version, tested up to 5.15.2) with the [Qt Online Installer for Windows](http://download.qt.io/official_releases/online_installers/qt-unified-windows-x86-online.exe).
+- Install Qt 5.15 (64-bit version, tested up to 5.15.2) with the [Qt Online Installer for Windows](http://download.qt.io/official_releases/online_installers/qt-unified-windows-x86-online.exe).
 
 #### Customized Qt v5.15.2 with WinTab support
-- Qt have started to support Windows Ink from 5.12. Unlike WinTab API used in Qt 5.9 the tablet behaviors are different and are (at least, for OT) problematic.
+- Qt have started to support Windows Ink from 5.12. Unlike WinTab API used until Qt 5.9 , the tablet behaviors are different and are (at least, for OT) problematic.
 - The customized Qt5.15.2 are made with cherry-picking the WinTab feature to be officially introduced from 6.0.
 - You can build OT with WinTab support by using the prebuilt package of the customized version of Qt for MSVC2019-x64 provided [here](https://github.com/shun-iwasawa/qt5/releases/tag/v5.15.2_wintab) and checking the `WITH_WINTAB` checkbox in CMake to build.
 
@@ -90,34 +89,58 @@ To run the program with Canon DSLR camera support, you will need to copy the .dl
 2. Open a Command Prompt and navigate to `QT_DIR/msvc2015_64/bin`. Run the Qt program `windeployqt.exe` with the path for `OpenToonz.exe` as an argument. (Another way to do this is navigate to the exe that was created in your Release folder and drag and drop the Opentoonz.exe on top of the windeployqt.exe This will automatically generate the QT files and folders you will need.)
  - The necessary Qt library files should be in the same folder as `OpenToonz.exe`
   - These include:
+    - `D3Dcompiler_**.dll`
     - `Qt5Core.dll`
     - `Qt5Gui.dll`
+    - `Qt5Multimedia.dll`
     - `Qt5Network.dll`
     - `Qt5OpenGL.dll`
     - `Qt5PrintSupport.dll`
     - `Qt5Script.dll`
+    - `Qt5SerialPort.dll`
     - `Qt5Svg.dll`
     - `Qt5Widgets.dll`
-    - `Qt5Multimedia.dll`
-  - These files should be in the corresponding folders in the same folder `OpenToonz.exe`
-    - `/bearer/qgenericbearer.dll`
-    - `/bearer/qnativewifibearer.dll`
-    - `/iconengines/qsvgicon.dll`
-    - `/imageformats/qdds.dll`
-    - `/imageformats/qgif.dll`
-    - `/imageformats/qicns.dll`
-    - `/imageformats/qico.dll`
-    - `/imageformats/qjpeg.dll`
-    - `/imageformats/qsvg.dll`
-    - `/imageformats/qtga.dll`
-    - `/imageformats/qtiff.dll`
-    - `/imageformats/qwbmp.dll`
-    - `/imageformats/qwebp.dll`
-    - `/platforms/qwindows.dll`
+    - `Qt5Xml.dll`
+  - These files should be placed in the corresponding folders in the same directory as `OpenToonz.exe`:
+
+```
+.
+├── OpenToonz.exe
+├── audio
+│   ├── qtaudio_wasapid.dll
+│   └── qtaudio_windowsd.dll
+├── bearer
+│   └── qgenericbearerd.dll
+├── iconengines
+│   └── qsvgicond.dll
+├── imageformats
+│   ├── qgifd.dll
+│   ├── qicnsd.dll
+│   ├── qicod.dll
+│   ├── qjpegd.dll
+│   ├── qsvgd.dll
+│   ├── qtgad.dll
+│   ├── qtiffd.dll
+│   ├── qwbmpd.dll
+│   └── qwebpd.dll
+├── mediaservice
+│   ├── dsengined.dll
+│   ├── qtmedia_audioengined.dll
+│   └── wmfengined.dll
+├── platforms
+│   └── qwindowsd.dll
+├── playlistformats
+│   └── qtmultimedia_m3ud.dll
+├── printsupport
+│   └── windowsprintersupportd.dll
+└── styles
+    └── qwindowsvistastyled.dll
+```
 
 3. Copy the following files to the same folder as `OpenToonz.exe`
   - `$opentoonz/thirdparty/glut/3.7.6/lib/glut64.dll`
   - `$opentoonz/thirdparty/glew/glew-1.9.0/bin/64bit/glew32.dll`
+  - `$opentoonzthirdparty/libmypaint/dist/64/*.dll`
   - `turbojpeg.dll` from libjpeg-turbo package
   - `opencv_world***.dll` from OpenCV package
 

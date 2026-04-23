@@ -233,6 +233,7 @@ void ConvertPopup::Converter::convertLevel(
   }
 
   popup->m_notifier->notifyLevelCompleted(dstFileFullPath);
+  popup->m_convertedFileMap[sourceFileFullPath] = dstFileFullPath;
 }
 
 // to use legacy code
@@ -406,11 +407,11 @@ ConvertPopup::ConvertPopup(bool specifyInput)
   m_progressDialog->setWindowModality(Qt::WindowModal);
 
   //----layout
-  m_topLayout->setMargin(5);
+  m_topLayout->setContentsMargins(5, 5, 5, 5);
   m_topLayout->setSpacing(5);
   {
     QGridLayout *upperLay = new QGridLayout();
-    upperLay->setMargin(0);
+    upperLay->setContentsMargins(0, 0, 0, 0);
     upperLay->setSpacing(5);
     {
       int row = 0;
@@ -462,7 +463,7 @@ ConvertPopup::ConvertPopup(bool specifyInput)
     m_topLayout->addWidget(m_tlvFrame);
   }
 
-  m_buttonLayout->setMargin(0);
+  m_buttonLayout->setContentsMargins(0, 0, 0, 0);
   m_buttonLayout->setSpacing(20);
   {
     m_buttonLayout->addWidget(m_okBtn);
@@ -605,7 +606,7 @@ QFrame *ConvertPopup::createTlvSettings() {
 
   m_appendDefaultPalette->setToolTip(
       tr("When activated, styles of the default "
-         "palette\n($TOONZSTUDIOPALETTE\\cleanup_default.tpl) will \nbe "
+         "palette\n($TOONZSTUDIOPALETTE\\Global Palettes\\Default Palettes\\Cleanup_Palette.tpl) will \nbe "
          "appended to the palette after conversion in \norder to save the "
          "effort of creating styles \nbefore color designing."));
 
@@ -711,8 +712,7 @@ void ConvertPopup::onAntialiasSelected(int index) {
 void ConvertPopup::onFileInChanged() {
   assert(m_convertFileFld);
   std::vector<TFilePath> fps;
-  TProject *project =
-      TProjectManager::instance()->getCurrentProject().getPointer();
+  auto project = TProjectManager::instance()->getCurrentProject();
   ToonzScene *scene = TApp::instance()->getCurrentScene()->getScene();
   fps.push_back(scene->decodeFilePath(
       TFilePath(m_convertFileFld->getPath().toStdString())));
@@ -834,7 +834,8 @@ void ConvertPopup::setFiles(const std::vector<TFilePath> &fps) {
   m_imageDpi = 0.0;
 
   if (m_srcFilePaths.size() == 1) {
-    setWindowTitle(tr("Convert 1 Level"));
+    setWindowTitle(tr("Convert 1 Level : %1")
+        .arg(QString::fromStdString(fps[0].getName())));
     m_fileNameFld->setEnabled(true);
 
     m_fromFld->setEnabled(false);
@@ -884,6 +885,11 @@ void ConvertPopup::setFiles(const std::vector<TFilePath> &fps) {
   // update the image dpi field
   onDpiModeSelected(m_dpiMode->currentIndex());
   // m_fileFormat->setCurrentIndex(areFullcolor?0:m_fileFormat->findText("tif"));
+}
+
+void ConvertPopup::setFormat(QString format){
+    m_fileFormat->setDisabled(true);
+    m_fileFormat->setCurrentIndex(m_fileFormat->findText(format));
 }
 
 //-------------------------------------------------------------------
@@ -1260,6 +1266,7 @@ QString::number(m_srcFilePaths.size()-skipped)).arg(QString::number(m_srcFilePat
 
 void ConvertPopup::onLevelConverted(const TFilePath &fullPath) {
   IconGenerator::instance()->invalidate(fullPath);
+  
 }
 
 //-------------------------------------------------------------------

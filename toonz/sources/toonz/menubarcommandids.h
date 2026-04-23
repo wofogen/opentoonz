@@ -29,11 +29,13 @@
 #define MI_NewVectorLevel "MI_NewVectorLevel"
 #define MI_NewToonzRasterLevel "MI_NewToonzRasterLevel"
 #define MI_NewRasterLevel "MI_NewRasterLevel"
+#define MI_NewMetaLevel "MI_NewMetaLevel"
 #define MI_LoadLevel "MI_LoadLevel"
 #define MI_LoadFolder "MI_LoadFolder"
 #define MI_SaveLevel "MI_SaveLevel"
 #define MI_SaveLevelAs "MI_SaveLevelAs"
 #define MI_ExportLevel "MI_ExportLevel"
+#define MI_ExportAllLevels "MI_ExportAllLevels"
 #define MI_SavePaletteAs "MI_SavePaletteAs"
 #define MI_OverwritePalette "MI_OverwritePalette"
 #define MI_LoadColorModel "MI_LoadColorModel"
@@ -105,6 +107,7 @@
 #define MI_AdjustLevels "MI_AdjustLevels"
 #define MI_AdjustThickness "MI_AdjustThickness"
 #define MI_Binarize "MI_Binarize"
+#define MI_FillHoles "MI_FillHoles"
 #define MI_LinesFade "MI_LinesFade"
 #define MI_OpenXshView "MI_OpenXshView"
 #define MI_OpenTimelineView "MI_OpenTimelineView"
@@ -192,6 +195,7 @@
 #define MI_EditShift "MI_EditShift"
 #define MI_NoShift "MI_NoShift"
 #define MI_ResetShift "MI_ResetShift"
+#define MI_ShowShiftOrigin "MI_ShowShiftOrigin"
 #define MI_Histogram "MI_Histogram"
 #define MI_ViewerHistogram "MI_ViewerHistogram"
 #define MI_FxParamEditor "MI_FxParamEditor"
@@ -240,6 +244,7 @@
 #define MI_OnionSkin "MI_OnionSkin"
 #define MI_ZeroThick "MI_ZeroThick"
 #define MI_CursorOutline "MI_CursorOutline"
+#define MI_ViewerIndicator "MI_ViewerIndicator"
 
 // #define MI_LoadResourceFile       "MI_LoadResourceFile"
 #define MI_DuplicateFile "MI_DuplicateFile"
@@ -312,6 +317,7 @@
 #define MI_UnlockAllColumns "MI_UnlockAllColumns"
 #define MI_ToggleColumnLocks "MI_ToggleColumnLocks"
 #define MI_ToggleXSheetToolbar "MI_ToggleXSheetToolbar"
+#define MI_ToggleXsheetBreadcrumbs "MI_ToggleXsheetBreadcrumbs"
 #define MI_FoldColumns "MI_FoldColumns"
 #define MI_ToggleXsheetCameraColumn "MI_ToggleXsheetCameraColumn"
 #define MI_ToggleCurrentTimeIndicator "MI_ToggleCurrentTimeIndicator"
@@ -327,6 +333,8 @@
 
 #define MI_OpenComboViewer "MI_OpenComboViewer"
 #define MI_OpenHistoryPanel "MI_OpenHistoryPanel"
+#define MI_OpenBrushPresetPanel "MI_OpenBrushPresetPanel"
+#define MI_OpenToolPropertiesPanel "MI_OpenToolPropertiesPanel"
 #define MI_ReplaceParentDirectory "MI_ReplaceParentDirectory"
 #define MI_Reframe1 "MI_Reframe1"
 #define MI_Reframe2 "MI_Reframe2"
@@ -385,6 +393,7 @@
 #define MI_EraserFreehand "MI_EraserFreehand"
 #define MI_EraserPolyline "MI_EraserPolyline"
 #define MI_EraserSegment "MI_EraserSegment"
+#define MI_EraserMultiArc "MI_EraserMultiArc"
 
 #define MI_TapeNextType "MI_TapeNextType"
 #define MI_TapeNormal "MI_TapeNormal"
@@ -451,6 +460,7 @@
 #define MI_OpenReportABug "MI_OpenReportABug"
 
 #define MI_ClearCacheFolder "MI_ClearCacheFolder"
+#define MI_ClearViewerContent "MI_ClearViewerContent"
 
 #define MI_VectorGuidedDrawing "MI_VectorGuidedDrawing"
 #define MI_OpenGuidedDrawingControls "MI_OpenGuidedDrawingControls"
@@ -467,7 +477,9 @@
 #define MI_FlipPrevGuideStroke "MI_FlipPrevGuideStroke"
 
 #define MI_ExportXDTS "MI_ExportXDTS"
+#define MI_ExportSXF "MI_ExportSXF"
 #define MI_ExportOCA "MI_ExportOCA"
+#define MI_ImportOCA "MI_ImportOCA"
 #define MI_ExportTvpJson "MI_ExportTvpJson"
 #define MI_ExportXsheetPDF "MI_ExportXsheetPDF"
 #define MI_ExportCameraTrack "MI_ExportCameraTrack"
@@ -490,4 +502,5 @@
 #define MI_PrevTaggedFrame "MI_PrevTaggedFrame"
 #define MI_ClearTags "MI_ClearTags"
 
+#define MI_OpenLocator "MI_OpenLocator"
 #endif

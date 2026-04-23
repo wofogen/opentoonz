@@ -1248,6 +1248,7 @@ int pixel_point_root::save(const char *cp_fname) {
   /* データ数保存 */
   if (fprintf(fp, "# count %d\n", this->get_i32_count()) < 0) {
     pri_funct_err_bttvr("Error : fprintf(count) returns minus.");
+    fclose(fp);
     return NG;
   }
 
@@ -1258,6 +1259,7 @@ int pixel_point_root::save(const char *cp_fname) {
     if (fprintf(fp, "%d %d\n", clp_pp_node->get_i32_xp(),
                 clp_pp_node->get_i32_yp()) < 0) {
       pri_funct_err_bttvr("Error : fprintf(count xp yp) returns minus.");
+      fclose(fp);  
       return NG;
     }
   }
@@ -1836,6 +1838,7 @@ int pixel_line_node::save_line(FILE *fp) {
         0) {
       pri_funct_err_bttvr("Error : point %d : fprintf(%d %d) returns minus", ii,
                           clp_crnt->get_i32_xp(), clp_crnt->get_i32_yp());
+      fclose(fp);
       return NG;
     }
   }
@@ -4041,7 +4044,7 @@ int pixel_select_curve_blur_root::save(double d_xp, double d_yp,
     assert(NULL != clp_loop->clp_near_point);
 
     /* グループ(ライン)番号保存 */
-    if (fprintf(fp, "# selct number %d : reverse sw is %s\n", ii,
+    if (fprintf(fp, "# select number %d : reverse sw is %s\n", ii,
                 (!clp_loop->i_reverse_sw ? "off" : "on")) < 0) {
       pri_funct_err_bttvr("Error : fprintf(# line number %d) returns minus",
                           ii);

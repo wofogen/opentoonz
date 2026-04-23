@@ -1,4 +1,6 @@
-
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x0A00
+#endif
 
 #include "texception.h"
 #include "tpropertytype.h"
@@ -8,12 +10,14 @@
 #include "tiio.h"
 
 #if !defined(x64) && !defined(__LP64__) &&                                     \
-    !(defined(LINUX) || defined(FREEBSD) || defined(HAIKU)) &&                                   \
+    !(defined(LINUX) || defined(FREEBSD) || defined(HAIKU)) &&                 \
     !(defined(__GNUC__) && defined(_WIN32))
 
-//*******************************************************************************
+//********************************************************************************
 //    32-bit version
-//*******************************************************************************
+//********************************************************************************
+
+#include "movsettings.h"
 
 #ifdef _WIN32
 #ifdef _MSC_VER
@@ -95,8 +99,6 @@ esempio:  buf[0] = 13 buf[1]=0 buf[2]=0 buf[3]=0 buf[4]=0 buf5]=231
 allora str = "13 z 4 231"
 */
 
-#include "movsettings.h"
-
 //------------------------------------------------
 
 void visitAtoms(const QTAtomContainer &atoms, const QTAtom &parent,
@@ -114,9 +116,9 @@ void visitAtoms(const QTAtomContainer &atoms, const QTAtom &parent,
     int sonCount = QTCountChildrenOfType(atoms, curr, 0);
 
     char buffer[1024];
-    snprintf(buffer, sizeof(buffer), "%d %d %d", (int)atomType, (int)id,
-             sonCount);
-    string str(buffer);
+    std::snprintf(buffer, sizeof(buffer), "%d %d %d", (int)atomType, (int)id,
+                  sonCount);
+    std::string str(buffer);
 
     if (sonCount > 0) {
       pg.add(new TStringProperty(str, TString()));
@@ -129,9 +131,9 @@ void visitAtoms(const QTAtomContainer &atoms, const QTAtom &parent,
       if (QTGetAtomDataPtr(atoms, curr, &size, (char **)&atomData) != noErr)
         assert(false);
 
-      string strapp;
+      std::string strapp;
       for (int i = 0; i < size; i++) {
-        string num;
+        std::string num;
         if (atomData[i] == 0) {
           int count = 1;
           while ((i + 1) < size && atomData[i + 1] == 0) i++, count++;
@@ -143,7 +145,7 @@ void visitAtoms(const QTAtomContainer &atoms, const QTAtom &parent,
         }
         num = std::to_string(atomData[i]);
 
-        strapp = strapp + string(num) + " ";
+        strapp = strapp + std::string(num) + " ";
       }
 
       // unsigned short*buffer = new unsigned short[size];
@@ -151,7 +153,7 @@ void visitAtoms(const QTAtomContainer &atoms, const QTAtom &parent,
       // for (i=0; i<size; i++)
       //  buffer[i] = atomData[i]+1;
 
-      wstring data = ::to_wstring(strapp);
+      std::wstring data = ::to_wstring(strapp);
 
       pg.add(new TStringProperty(str, data));
     }
@@ -218,17 +220,17 @@ void visitprops(TPropertyGroup &pg, int &index, QTAtomContainer &atoms,
   int count = pg.getPropertyCount();
   while (index < count) {
     TStringProperty *p = (TStringProperty *)pg.getProperty(index++);
-    string str0        = p->getName();
+    std::string str0   = p->getName();
     const char *buf    = str0.c_str();
     int atomType, id, sonCount;
-    sscanf(buf, "%d %d %d", &atomType, &id, &sonCount);
+    std::sscanf(buf, "%d %d %d", &atomType, &id, &sonCount);
     QTAtom newAtom;
     if (sonCount == 0) {
-      wstring appow   = p->getValue();
-      string appo     = ::to_string(appow);
-      const char *str = appo.c_str();
+      std::wstring appow = p->getValue();
+      std::string appo   = ::to_string(appow);
+      const char *str    = appo.c_str();
 
-      vector<UCHAR> buf;
+      std::vector<UCHAR> buf;
       while (strlen(str) > 0) {
         if (str[0] == 'z') {
           int count = atoi(str + 1);
@@ -394,12 +396,12 @@ bool Tiio::isQuicktimeInstalled() {
 #include "tipc.h"
 #include "t32bitsrv_wrap.h"
 
+#include "movsettings.h"
+
 // MAC-Specific includes
 #ifdef MACOSX
 #include <ApplicationServices/ApplicationServices.h>
 #endif
-
-#include "movsettings.h"
 
 //---------------------------------------------------------------------------
 

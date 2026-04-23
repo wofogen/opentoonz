@@ -210,7 +210,7 @@ FlipBook::FlipBook(QWidget *parent, QString viewerTitle,
 
   // layout
   QVBoxLayout *mainLayout = new QVBoxLayout(this);
-  mainLayout->setMargin(0);
+  mainLayout->setContentsMargins(0, 0, 0, 0);
   mainLayout->setSpacing(0);
   {
     mainLayout->addWidget(fsWidget, 1);
@@ -231,8 +231,6 @@ FlipBook::FlipBook(QWidget *parent, QString viewerTitle,
                                   ->getProperties()
                                   ->getOutputProperties()
                                   ->getFrameRate());
-
-  mainLayout->addWidget(m_flipConsole);
 
   m_previewUpdateTimer.setSingleShot(true);
 
@@ -265,8 +263,8 @@ void FlipBook::addFreezeButtonToTitleBar() {
   TPanel *panel = qobject_cast<TPanel *>(parentWidget());
   if (panel) {
     TPanelTitleBar *titleBar = panel->getTitleBar();
-    m_freezeButton           = new TPanelTitleBarButton(
-        titleBar, getIconThemePath("actions/20/pane_freeze.svg"));
+    m_freezeButton =
+        new TPanelTitleBarButton(titleBar, "freeze");
     m_freezeButton->setToolTip("Freeze");
     titleBar->add(QPoint(-64, 0), m_freezeButton);
     connect(m_freezeButton, SIGNAL(toggled(bool)), this, SLOT(freeze(bool)));
@@ -388,7 +386,7 @@ LoadImagesPopup::LoadImagesPopup(FlipBook *flip)
 
   // layout
   QHBoxLayout *frameRangeLayout = new QHBoxLayout();
-  frameRangeLayout->setMargin(5);
+  frameRangeLayout->setContentsMargins(5, 5, 5, 5);
   frameRangeLayout->setSpacing(5);
   {
     frameRangeLayout->addStretch(1);

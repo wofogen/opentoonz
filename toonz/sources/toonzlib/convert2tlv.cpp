@@ -16,6 +16,7 @@
 #include "tenv.h"
 #include "convert2tlv.h"
 #include "tstream.h"
+#include "toonz/stage2.h"
 
 #include <map>
 
@@ -23,10 +24,6 @@
 
 // gmt, 14/11/2013 removed a commented out blocks of code (void buildInks1(),
 // void buildPalette() )
-
-extern TEnv::DoubleVar AutocloseDistance;
-extern TEnv::DoubleVar AutocloseAngle;
-extern TEnv::IntVar AutocloseOpacity;
 
 namespace {
 //----------------------------------------------
@@ -518,9 +515,11 @@ void Convert2Tlv::buildToonzRaster(TRasterCM32P &rout, const TRasterP &rin1,
     }
   }
 
-  if (m_autoclose)
-    TAutocloser(r, AutocloseDistance, AutocloseAngle, 1, AutocloseOpacity)
+  if (m_autoclose) {
+    auto st = ToonzCheck::instance()->getAutocloseSettings();
+    TAutocloser(r, st.m_closingDistance, st.m_spotAngle, 1, st.m_opacity)
         .exec();
+  }
 
   if (rP) {
     std::cout << "      computing paints...\n";
@@ -587,7 +586,8 @@ TPalette *Convert2Tlv::buildPalette() {
   /*-- Adding styles in the default palette to the result palette, starts here
    * --*/
   TFilePath palettePath =
-      ToonzFolder::getStudioPaletteFolder() + "cleanup_default.tpl";
+      ToonzFolder::getStudioPaletteFolder() +
+      "Global Palettes\\Default Palettes\\Cleanup_Palette.tpl";
   TFileStatus pfs(palettePath);
 
   if (!pfs.doesExist() || !pfs.isReadable()) return m_palette;

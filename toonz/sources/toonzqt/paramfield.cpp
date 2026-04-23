@@ -9,6 +9,7 @@
 #include "toonzqt/doublepairfield.h"
 #include "toonzqt/tonecurvefield.h"
 #include "toonzqt/checkbox.h"
+#include "toonzqt/menubarcommand.h"
 
 #include "tdoubleparam.h"
 #include "tnotanimatableparam.h"
@@ -635,7 +636,7 @@ ParamField::ParamField(QWidget *parent, QString paramName, const TParamP &param,
     , m_description(QString::fromStdString(param->getDescription())) {
   QString str;
   m_layout = new QHBoxLayout(this);
-  m_layout->setMargin(0);
+  m_layout->setContentsMargins(0, 0, 0, 0);
   m_layout->setSpacing(5);
 }
 
@@ -708,7 +709,7 @@ void ParamFieldKeyToggle::paintEvent(QPaintEvent *e) {
     pen = QColor(getKeyBorderOffColor());
     p.setPen(pen);
     p.fillPath(path, getKeyOffColor());
-    m_pixmap = QPixmap(createQIcon("key_off").pixmap(
+    m_pixmap = QPixmap(createQIcon("keyframe").pixmap(
         iconSize, iconSize, QIcon::Normal, QIcon::Off));
     icon.addPixmap(m_pixmap);
     icon.paint(&p, QRect(0, 0, iconSize, iconSize));
@@ -718,8 +719,8 @@ void ParamFieldKeyToggle::paintEvent(QPaintEvent *e) {
     p.setPen(pen);
     p.fillPath(path, getKeyOnColor());
     m_pixmap =
-        QPixmap(createQIcon("key_on", true)
-                    .pixmap(iconSize, iconSize, QIcon::Normal, QIcon::Off));
+        QPixmap(createQIcon("keyframe")
+                    .pixmap(iconSize, iconSize, QIcon::Normal, QIcon::On));
     icon.addPixmap(m_pixmap);
     icon.paint(&p, QRect(0, 0, iconSize, iconSize));
     break;
@@ -728,8 +729,8 @@ void ParamFieldKeyToggle::paintEvent(QPaintEvent *e) {
     p.setPen(pen);
     p.fillPath(path, getKeyModifiedColor());
     m_pixmap =
-        QPixmap(createQIcon("key_modified", true)
-                    .pixmap(iconSize, iconSize, QIcon::Normal, QIcon::Off));
+        QPixmap(createQIcon("keyframe_modified")
+                    .pixmap(iconSize, iconSize, QIcon::Normal, QIcon::On));
     icon.addPixmap(m_pixmap);
     icon.paint(&p, QRect(0, 0, iconSize, iconSize));
     break;
@@ -738,8 +739,8 @@ void ParamFieldKeyToggle::paintEvent(QPaintEvent *e) {
     p.setPen(pen);
     p.fillPath(path, getKeyInbetweenColor());
     m_pixmap =
-        QPixmap(createQIcon("key_on", true)
-                    .pixmap(iconSize, iconSize, QIcon::Normal, QIcon::Off));
+        QPixmap(createQIcon("keyframe")
+                    .pixmap(iconSize, iconSize, QIcon::Normal, QIcon::On));
     icon.addPixmap(m_pixmap);
     icon.paint(&p, QRect(0, 0, iconSize, iconSize));
     break;
@@ -1129,7 +1130,7 @@ RgbLinkButtons::RgbLinkButtons(QString str1, QString str2, QWidget *parent,
   swapButton->setFixedHeight(21);
 
   QHBoxLayout *lay = new QHBoxLayout();
-  lay->setMargin(0);
+  lay->setContentsMargins(0, 0, 0, 0);
   lay->setSpacing(5);
   {
     lay->addWidget(copyButton, 0);
@@ -1563,6 +1564,9 @@ void IntParamField::update(int frame) {
 
 namespace component {
 
+MyTextEdit::MyTextEdit(const QString &text, QWidget *parent)
+    : QTextEdit(text, parent) {}
+
 void MyTextEdit::keyPressEvent(QKeyEvent *event) {
   QTextEdit::keyPressEvent(event);
   if (event->key() == Qt::Key_Return) emit edited();
@@ -1572,6 +1576,7 @@ void MyTextEdit::focusOutEvent(QFocusEvent *event) {
   QTextEdit::focusOutEvent(event);
   emit edited();
 }
+
 };  // namespace component
 
 StringParamField::StringParamField(QWidget *parent, QString name,

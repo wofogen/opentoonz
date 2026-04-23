@@ -62,7 +62,7 @@ ColorModelBehaviorPopup::ColorModelBehaviorPopup(
 
   QGroupBox* paletteBox   = new QGroupBox(this);
   QVBoxLayout* paletteLay = new QVBoxLayout();
-  paletteLay->setMargin(15);
+  paletteLay->setContentsMargins(15, 15, 15, 15);
   paletteLay->setSpacing(15);
 
   paletteLay->addWidget(keepColorModelPltButton);
@@ -95,11 +95,11 @@ ColorModelBehaviorPopup::ColorModelBehaviorPopup(
     m_colorChipOrder         = new QButtonGroup(this);
 
     QPushButton* upperLeftOrderBtn =
-        new QPushButton(createQIcon("colorchiporder_upleft", true), "", this);
+        new QPushButton(createQIcon("colorchiporder_upleft"), "", this);
     QPushButton* lowerLeftOrderBtn =
-        new QPushButton(createQIcon("colorchiporder_lowleft", true), "", this);
+        new QPushButton(createQIcon("colorchiporder_lowleft"), "", this);
     QPushButton* leftUpperOrderBtn =
-        new QPushButton(createQIcon("colorchiporder_leftup", true), "", this);
+        new QPushButton(createQIcon("colorchiporder_leftup"), "", this);
 
     QStringList paletteTypes;
     paletteTypes << tr("Pick Every Colors as Different Styles")
@@ -132,7 +132,7 @@ ColorModelBehaviorPopup::ColorModelBehaviorPopup(
     m_colorChipOrder->setExclusive(true);
 
     QGridLayout* pickColorLay = new QGridLayout();
-    pickColorLay->setMargin(10);
+    pickColorLay->setContentsMargins(10, 10, 10, 10);
     pickColorLay->setHorizontalSpacing(5);
     pickColorLay->setVerticalSpacing(10);
     {
@@ -141,7 +141,7 @@ ColorModelBehaviorPopup::ColorModelBehaviorPopup(
       pickColorLay->addWidget(m_pickColorCombo, 0, 1, Qt::AlignLeft);
 
       QGridLayout* colorChipGridLay = new QGridLayout();
-      colorChipGridLay->setMargin(0);
+      colorChipGridLay->setContentsMargins(0, 0, 0, 0);
       colorChipGridLay->setHorizontalSpacing(5);
       colorChipGridLay->setVerticalSpacing(10);
       {
@@ -157,7 +157,7 @@ ColorModelBehaviorPopup::ColorModelBehaviorPopup(
         colorChipGridLay->addWidget(new QLabel(tr("Chip Order:"), this), 2, 0,
                                     Qt::AlignRight | Qt::AlignVCenter);
         QHBoxLayout* orderLay = new QHBoxLayout();
-        orderLay->setMargin(0);
+        orderLay->setContentsMargins(0, 0, 0, 0);
         orderLay->setSpacing(0);
         {
           orderLay->addWidget(upperLeftOrderBtn, 0);

@@ -1552,8 +1552,8 @@ void XSheetPDFTemplate::initializePage(QPdfWriter& writer) {
   QPageLayout pageLayout;
   pageLayout.setUnits(QPageLayout::Millimeter);
   pageLayout.setPageSize(
-      QPageSize(m_p.documentPageSize));  // •’Ê‚ÌB4‚ÍISO B4(250x353mm)
-                                         // “ú–{‚ÌB4‚ÍJIS B4(257x364mm)
+      QPageSize(m_p.documentPageSize));  // ISO B4(250x353mm)
+                                         // JIS B4(257x364mm)
   pageLayout.setOrientation(QPageLayout::Portrait);
   pageLayout.setMargins(m_p.documentMargin);
   writer.setPageLayout(pageLayout);
@@ -1688,11 +1688,9 @@ XSheetPDFTemplate_Custom::XSheetPDFTemplate_Custom(
     m_p.documentPageSize = str2PageSizeId(pageStr);
 
     QString marginStr = s.value("Margin").toString();
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+
     QStringList m = marginStr.split(QLatin1Char(','), Qt::SkipEmptyParts);
-#else
-    QStringList m = marginStr.split(QLatin1Char(','), QString::SkipEmptyParts);
-#endif
+
     assert(m.size() == 4);
     if (m.size() == 4)
       m_p.documentMargin = QMarginsF(m[0].toDouble(), m[1].toDouble(),
@@ -1734,12 +1732,7 @@ XSheetPDFTemplate_Custom::XSheetPDFTemplate_Custom(
     {
       for (auto key : s.childKeys()) {
         QString rectStr = s.value(key).toString();
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
         QStringList r = rectStr.split(QLatin1Char(','), Qt::SkipEmptyParts);
-#else
-        QStringList r =
-            rectStr.split(QLatin1Char(','), QString::SkipEmptyParts);
-#endif
         assert(r.size() == 4);
         if (r.size() == 4)
           m_dataRects[dataStr2Type(key)] =
@@ -1918,6 +1911,7 @@ ExportXsheetPdfPopup::ExportXsheetPdfPopup()
 
   QPushButton* exportBtn    = new QPushButton(tr("Export PDF"), this);
   QPushButton* exportPngBtn = new QPushButton(tr("Export PNG"), this);
+  QPushButton* exportCsvBtn = new QPushButton(tr("Export CSV"), this);
   QPushButton* cancelBtn    = new QPushButton(tr("Cancel"), this);
 
   m_tick1IdCombo = new QComboBox(this);
@@ -1968,16 +1962,16 @@ ExportXsheetPdfPopup::ExportXsheetPdfPopup()
   exportBtn->setObjectName("LargeSizedText");
 
   QHBoxLayout* mainLay = new QHBoxLayout();
-  mainLay->setMargin(0);
+  mainLay->setContentsMargins(0, 0, 0, 0);
   mainLay->setSpacing(5);
   {
     QVBoxLayout* previewLay = new QVBoxLayout();
-    previewLay->setMargin(0);
+    previewLay->setContentsMargins(0, 0, 0, 0);
     previewLay->setSpacing(0);
     {
       previewLay->addWidget(m_previewArea, 1);
       QHBoxLayout* prevBtnLay = new QHBoxLayout();
-      prevBtnLay->setMargin(15);
+      prevBtnLay->setContentsMargins(15, 15, 15, 15);
       prevBtnLay->setSpacing(10);
       {
         prevBtnLay->addStretch(1);
@@ -1991,20 +1985,20 @@ ExportXsheetPdfPopup::ExportXsheetPdfPopup()
     mainLay->addLayout(previewLay, 1);
 
     QVBoxLayout* rightLay = new QVBoxLayout();
-    rightLay->setMargin(0);
+    rightLay->setContentsMargins(0, 0, 0, 0);
     rightLay->setSpacing(10);
     {
       QScrollArea* scrollArea = new QScrollArea(this);
       scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
       QWidget* scrollPanel    = new QWidget(this);
       QVBoxLayout* controlLay = new QVBoxLayout();
-      controlLay->setMargin(20);
+      controlLay->setContentsMargins(20, 20, 20, 20);
       controlLay->setSpacing(10);
       {
         QGroupBox* tmplGBox = new QGroupBox(tr("Template Settings"), this);
 
         QGridLayout* tmplLay = new QGridLayout();
-        tmplLay->setMargin(10);
+        tmplLay->setContentsMargins(10, 10, 10, 10);
         tmplLay->setHorizontalSpacing(5);
         tmplLay->setVerticalSpacing(10);
         {
@@ -2038,7 +2032,7 @@ ExportXsheetPdfPopup::ExportXsheetPdfPopup()
         QGroupBox* exportGBox = new QGroupBox(tr("Export Settings"), this);
 
         QGridLayout* exportLay = new QGridLayout();
-        exportLay->setMargin(10);
+        exportLay->setContentsMargins(10, 10, 10, 10);
         exportLay->setHorizontalSpacing(5);
         exportLay->setVerticalSpacing(10);
         {
@@ -2062,7 +2056,7 @@ ExportXsheetPdfPopup::ExportXsheetPdfPopup()
                                Qt::AlignLeft | Qt::AlignVCenter);
 
           QGridLayout* checksLay = new QGridLayout();
-          checksLay->setMargin(0);
+          checksLay->setContentsMargins(0, 0, 0, 0);
           checksLay->setHorizontalSpacing(10);
           checksLay->setVerticalSpacing(10);
           {
@@ -2111,7 +2105,7 @@ ExportXsheetPdfPopup::ExportXsheetPdfPopup()
       rightLay->addWidget(scrollArea, 1);
 
       QGridLayout* saveLay = new QGridLayout();
-      saveLay->setMargin(15);
+      saveLay->setContentsMargins(15, 15, 15, 15);
       saveLay->setHorizontalSpacing(5);
       saveLay->setVerticalSpacing(10);
       {
@@ -2127,12 +2121,13 @@ ExportXsheetPdfPopup::ExportXsheetPdfPopup()
       rightLay->addLayout(saveLay, 0);
 
       QHBoxLayout* btnLay = new QHBoxLayout();
-      btnLay->setMargin(10);
+      btnLay->setContentsMargins(10, 10, 10, 10);
       btnLay->setSpacing(10);
       {
         btnLay->addStretch(1);
         btnLay->addWidget(exportBtn, 0);
         btnLay->addWidget(exportPngBtn, 0);
+        btnLay->addWidget(exportCsvBtn, 0);
         btnLay->addWidget(cancelBtn, 0);
       }
       rightLay->addLayout(btnLay, 0);
@@ -2146,6 +2141,7 @@ ExportXsheetPdfPopup::ExportXsheetPdfPopup()
 
   connect(exportBtn, SIGNAL(clicked()), this, SLOT(onExport()));
   connect(exportPngBtn, SIGNAL(clicked()), this, SLOT(onExportPNG()));
+  connect(exportCsvBtn, SIGNAL(clicked()), this, SLOT(onExportCSV()));
   connect(cancelBtn, SIGNAL(clicked()), this, SLOT(close()));
 
   connect(m_durationFld, SIGNAL(editingFinished()), this,
@@ -2708,6 +2704,129 @@ void ExportXsheetPdfPopup::onExportPNG() {
   }
 
   onExportFinished(fp);
+}
+
+void ExportXsheetPdfPopup::onExportCSV() {
+  ToonzScene* scene = TApp::instance()->getCurrentScene()->getScene();
+
+  if (m_fileNameFld->text().isEmpty()) {
+    DVGui::MsgBoxInPopup(DVGui::WARNING, tr("Please specify the file name."));
+    return;
+  }
+
+  TFilePath fp(m_pathFld->getPath());
+  fp += m_fileNameFld->text().toStdString() + ".csv";
+  fp = scene->decodeFilePath(fp);
+
+  if (TSystem::doesExistFileOrLevel(fp)) {
+    QString question =
+        tr("The file %1 already exists.\nDo you want to overwrite it?")
+            .arg(fp.getQString());
+    int ret = DVGui::MsgBox(question, QObject::tr("Overwrite"),
+                            QObject::tr("Cancel"));
+    if (ret == 0 || ret == 2) {
+      return;
+    }
+  }
+  if (!TFileStatus(fp.getParentDir()).doesExist()) {
+    QString question =
+        tr("A folder %1 does not exist.\nDo you want to create it?")
+            .arg(fp.getParentDir().getQString());
+    int ret = DVGui::MsgBox(question, QObject::tr("Create folder"),
+                            QObject::tr("Cancel"));
+    if (ret == 0 || ret == 2) {
+      return;
+    }
+
+    if (!TSystem::touchParentDir(fp)) {
+      DVGui::MsgBoxInPopup(DVGui::CRITICAL,
+                           tr("Failed to create folder %1.")
+                               .arg(fp.getParentDir().getQString()));
+      return;
+    }
+  }
+
+  QFile file(fp.getQString());
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    DVGui::MsgBoxInPopup(
+        DVGui::CRITICAL,
+        tr("Failed to create file %1.").arg(fp.getQString()));
+    return;
+  }
+  QTextStream stream(&file);
+
+  QList<QStringList> csvColumns;
+  for (auto pair = m_columns.begin(); pair != m_columns.end(); pair++) {
+    TXshLevelColumn* column = pair->first;
+    QString columnName      = pair->second;
+    QStringList csvCol;
+
+    // obtain level in this column
+    int r0, r1;
+    column->getRange(r0, r1);
+    TXshLevelP level = column->getCell(r0).m_level;
+
+    if (columnName.isEmpty())
+      columnName = QString::fromStdWString(level->getName());
+    
+    // add col name at col head
+    csvCol.append(columnName);
+
+    TXshCell prevCell,cell;
+    for (int f = 0; f < m_duration; f++) {
+      cell = column->getCell(f);
+      if (prevCell == cell && f) {
+        csvCol.append("");
+        continue;
+      }
+
+      if (cell.m_level != level) cell.m_level = nullptr;
+      
+      //add cell number
+      if (cell.m_level)
+          csvCol.append(QString::number(cell.m_frameId.getNumber()));
+      else
+        csvCol.append(QChar(0x00D7));// Stop Marker: Cross
+      
+      prevCell = cell;
+      }
+
+    csvColumns.append(csvCol);
+    }
+  
+  QStringList rowData;
+
+  //First Row
+  rowData.append("\"Frame\"");
+  for (const QStringList& column : csvColumns) {
+    rowData.append("\"\"");
+  }
+  stream << rowData.join(",") << "\n";
+  rowData.clear();
+
+  //Second Row
+  rowData.append("\"\"");
+  for (const QStringList& column : csvColumns) {
+    rowData.append("\"" + column[0] + "\"");
+  }
+  stream << rowData.join(",") << "\n";
+  rowData.clear();
+
+  //Third Row and rest rows
+  for (int f = 1; f <= m_duration; ++f) {
+    rowData.append("\"" + QString::number(f) + "\"");
+
+    for (const QStringList& column : csvColumns) {
+      rowData.append("\"" + column[f] + "\"");
+    }
+
+    stream << rowData.join(",") << "\n";
+    rowData.clear();
+  }
+
+  file.close();
+
+  onExportFinished(fp); 
 }
 
 void ExportXsheetPdfPopup::onExportFinished(const TFilePath& fp) {

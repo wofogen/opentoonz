@@ -225,19 +225,23 @@ get the stroke nearest at point
 
   //! Add a stroke at the end of the vector; returns position of the stroke (or
   //! -1 if not added)
-  int addStroke(TStroke *, bool discardPoints = true);
+  int addStroke(TStroke *, bool discardPoints = true, bool underAll = false);
+  int addStrokeBelow(TStroke *, const QSet<int> &aboveStyles, bool discardPoints = true);
   int addStrokeToGroup(TStroke *stroke, int strokeIndex);
   //! Replace the stroke at index \b index with \b newStroke
   void replaceStroke(int index, TStroke *newStroke);
+  void reOrderStrokes(const std::vector<int> &oldIndexes,
+               const std::vector<int> &newIndexes);
 
   //! Insert a \b VIStroke \b vs at index \b strokeIndex
   void insertStrokeAt(VIStroke *vs, int strokeIndex,
-                      bool recomputeRegions = true);  //! Move \b count strokes
-                                                      //! starting from \b
-                                                      //! fromIndex before the
-                                                      //! stroke identified by
-                                                      //! the \b moveBefore
-                                                      //! index.
+                      bool recomputeRegions = true);  
+  //! Move \b count strokes
+  //! starting from \b
+  //! fromIndex before the
+  //! stroke identified by
+  //! the \b moveBefore
+  //! index.
   void moveStrokes(int fromIndex, int count, int moveBefore);
   //! Find regions of a \b TVectorImage
   void findRegions();
@@ -361,12 +365,13 @@ get the stroke nearest at point
 regions. only ending parts are removed.
 If the entire stroke is not bounding any region, it is kept entitely.
 it returns the original stroke (for undo)*/
-  TStroke *removeEndpoints(int strokeIndex);
+
+  TStroke *removeEndpoints(int strokeIndex, double *offset=NULL);
 
   /*! this method replaces  the stroke at index with oldstroke. Oldstroke is
-supposed to contain
+  supposed to contain
 existing stroke. this method is used for undoing removeEndpoints . */
-  void restoreEndpoints(int index, TStroke *oldStroke);
+  void restoreEndpoints(int index, TStroke *oldStroke, double offset);
 
   //! Set the autoclose tolerance to the specified value.
   void setAutocloseTolerance(double val);

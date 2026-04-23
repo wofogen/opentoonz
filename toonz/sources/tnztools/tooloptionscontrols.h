@@ -24,6 +24,9 @@
 #include "toonz/tstageobject.h"
 #include "toonz/stageobjectutil.h"
 
+// ToonzTools
+#include "vectorselectiontool.h"
+
 // STD includes
 #include <string>
 
@@ -73,7 +76,7 @@ public:
   const std::string &propertyName() const { return m_propertyName; }
 
   void onPropertyChanged() override { updateStatus(); }
-  void notifyTool(bool addToUndo = false);
+  void notifyTool(bool addToUndo = true);
   // return true if the control is belonging to the visible viewer
   bool isInVisibleViewer(QWidget *widget);
 
@@ -357,7 +360,9 @@ public:
 
   void setValue(double v);
   double getValue() const;
-
+  
+  bool isLabelClicked() const { return m_labelClicked; }
+ 
   void setPrecision(int precision);
   int getPrecision() { return m_precision; }
 
@@ -554,6 +559,8 @@ class ThickChangeField final : public MeasuredValueField {
   Q_OBJECT
 
   SelectionTool *m_tool;
+  std::unique_ptr<DragSelectionTool::VectorChangeThicknessTool>
+      m_changeThickTool;
 
 public:
   ThickChangeField(SelectionTool *tool, QString name);

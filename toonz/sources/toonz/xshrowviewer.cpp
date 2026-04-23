@@ -181,7 +181,7 @@ void RowArea::drawRows(QPainter &p, int r0, int r1) {
     }
     // not in preview range
     else
-      p.setPen(m_viewer->getTextColor());
+      p.setPen(m_viewer->getFrameTextColor());
 
     QPoint basePoint = m_viewer->positionToXY(CellPosition(r, -1));
     if (!o->isVerticalTimeline())
@@ -1149,7 +1149,7 @@ void RowArea::mousePressEvent(QMouseEvent *event) {
     event->accept();
   }  // left-click
      // pan by middle-drag
-  else if (event->button() == Qt::MidButton) {
+  else if (event->button() == Qt::MiddleButton) {
     m_pos       = event->pos();
     m_isPanning = true;
   }
@@ -1331,7 +1331,7 @@ void RowArea::mouseMoveEvent(QMouseEvent *event) {
 //-----------------------------------------------------------------------------
 
 void RowArea::mouseReleaseEvent(QMouseEvent *event) {
-  m_viewer->setQtModifiers(0);
+  m_viewer->setQtModifiers(Qt::KeyboardModifiers());
   m_viewer->stopAutoPan();
   m_isPanning = false;
   m_viewer->dragToolRelease(event);
@@ -1389,6 +1389,7 @@ void RowArea::contextMenuEvent(QContextMenuEvent *event) {
   menu->addAction(cmdManager->getAction(MI_DrawingSubBackward));
   menu->addSeparator();
   menu->addAction(cmdManager->getAction(MI_ShiftTrace));
+  menu->addAction(cmdManager->getAction(MI_ShowShiftOrigin));
   menu->addAction(cmdManager->getAction(MI_EditShift));
   menu->addAction(cmdManager->getAction(MI_NoShift));
   menu->addAction(cmdManager->getAction(MI_ResetShift));

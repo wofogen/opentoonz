@@ -24,11 +24,13 @@
         <separator/>
         <menu title="Import">
             <command>MI_ImportMagpieFile</command>
+            <command>MI_ImportOCA</command>
         </menu>
         <menu title="Export">
             <command>MI_ExportCurrentScene</command>		
             <command>MI_SoundTrack</command>
             <command>MI_ExportXDTS</command>
+            <command>MI_ExportSXF</command>
             <command>MI_ExportOCA</command>
             <command>MI_StopMotionExportImageSequence</command>
             <command>MI_ExportTvpJson</command>
@@ -64,6 +66,7 @@
         <command>MI_Insert</command>
         <command>MI_InsertAbove</command>
         <command>MI_Clear</command>
+        <command>MI_ClearViewerContent</command>
         <separator/>
         <command>MI_SelectAll</command>
         <command>MI_InvertSelection</command>
@@ -113,6 +116,7 @@
         <command>MI_SaveAllLevels</command>
         <command>MI_OpenRecentLevel</command>
         <command>MI_ExportLevel</command>
+        <command>MI_ExportAllLevels</command>
         <separator/>
         <command>MI_AddFrames</command>
         <command>MI_Renumber</command>
@@ -130,6 +134,7 @@
             <command>MI_LinesFade</command>
         </menu>
         <menu title="Optimize">
+            <command>MI_FillHoles</command>
             <command>MI_RemoveEndpoints</command>
             <command>MI_ConvertVectorToVector</command>
         </menu>
@@ -295,6 +300,8 @@
         <command>MI_OpenCommandToolbar</command>
         <command>MI_OpenToolbar</command>
         <command>MI_OpenToolOptionBar</command>
+        <command>MI_OpenBrushPresetPanel</command>
+        <command>MI_OpenToolPropertiesPanel</command>
         <separator/>
         <command>MI_OpenStyleControl</command>
         <command>MI_OpenPalette</command>

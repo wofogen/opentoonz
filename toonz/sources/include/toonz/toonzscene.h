@@ -3,6 +3,8 @@
 #ifndef TOONZSCENE_H
 #define TOONZSCENE_H
 
+#include <memory>
+
 // TnzCore includes
 #include "tfilepath.h"
 #include "traster.h"
@@ -51,11 +53,11 @@ public:
             scene referring to the project. I would expect a
             \a project to own its scenes, not the other way around...         */
 
-  TProject *getProject()
-      const;  //!< Returns a pointer to the project holding a scene instance.
-  void setProject(TProject *);  //!< Associates a scene to a project.
+  std::shared_ptr<TProject> getProject() const;  //!< Returns a pointer to the project holding a scene instance.
+  void setProject(std::shared_ptr<TProject>);  //!< Associates a scene to a project.
 
-  void setScenePath(const TFilePath &p);  //!< Sets the scene's file path.
+  void setScenePath(const TFilePath &p, 
+      bool changeToTitled = true);  //!< Sets the scene's file path.
   TFilePath getScenePath() const {
     return m_scenePath;
   }  //!< Returns the scene's file path.
@@ -71,10 +73,11 @@ public:
             once a proper path is specified by the user.                      */
 
   void setUntitled();  //!< Marks the scene as explicitly untitled.
+  void setTitled(); //Marks scene as titled after being saved
   bool isUntitled()
       const;  //!< Returns whether the scene path is empty, or the scene
               //!  is explicitly untitled.  \sa  Member function setUntitled().
-
+  
   TXsheet *getXsheet()
       const;  //!< Returns a pointer to the scene's \a current xsheet.
   TXsheet *getTopXsheet() const;  //!< Returns the \a topmost xsheet in the
@@ -268,10 +271,13 @@ private:
   ChildStack *m_childStack;  //!< Xsheet hierarchy.
   TSceneProperties *m_properties;
   TLevelSet *m_levelSet;
-  TProject *m_project;
+  std::shared_ptr<TProject> m_project;
   TContentHistory *m_contentHistory;
   bool m_isUntitled;              //!< Whether the scene is untitled.
                                   //!  \sa  The setUntitled() member function.
+  bool m_standAlone;			  //!< Whether the scene is stand-alone 
+                                  //(not in a project folder with scenes.xml inside).
+
   VersionNumber m_versionNumber;  // last saved scene file version. Note that
                                   // currently it is not match with OT version.
                                   // TODO: Revise VersionNumber with OT version

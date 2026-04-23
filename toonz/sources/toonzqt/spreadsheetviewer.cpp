@@ -392,7 +392,7 @@ void RowPanel::drawRows(QPainter &p, int r0, int r1) {
 
     // draw numbers
     p.setPen((r == currentRow) ? getViewer()->getCurrentRowTextColor()
-                               : getViewer()->getTextColor());
+                               : getViewer()->getFrameTextColor());
 
     QString number = QString::number(r + 1);
     p.drawText(QRect(x0, y + 1, width() - 4, next_y - y - 1),
@@ -585,7 +585,7 @@ SpreadsheetViewer::SpreadsheetViewer(QWidget *parent)
 
   //---- layout
   QGridLayout *layout = new QGridLayout();
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
   {
     layout->addWidget(m_columnScrollArea, 0, 1);

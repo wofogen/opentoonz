@@ -190,7 +190,7 @@ OutputSettingsPopup::OutputSettingsPopup(bool isPreview)
 
   // preview settings
   if (isPreview) {
-    m_topLayout->setMargin(5);
+    m_topLayout->setContentsMargins(5, 5, 5, 5);
     m_topLayout->addWidget(panel, 0);
     return;
   }
@@ -227,10 +227,10 @@ OutputSettingsPopup::OutputSettingsPopup(bool isPreview)
   renderButton->setIconSize(QSize(20, 20));
   renderButton->setFixedWidth(200);
 
-  m_topLayout->setMargin(5);
+  m_topLayout->setContentsMargins(5, 5, 5, 5);
   {
     QHBoxLayout *presetLay = new QHBoxLayout();
-    presetLay->setMargin(0);
+    presetLay->setContentsMargins(0, 0, 0, 0);
     presetLay->setSpacing(5);
     {
       presetLay->addStretch(1);
@@ -243,7 +243,7 @@ OutputSettingsPopup::OutputSettingsPopup(bool isPreview)
     m_topLayout->addLayout(presetLay, 0);
 
     QHBoxLayout *middleLay = new QHBoxLayout();
-    middleLay->setMargin(0);
+    middleLay->setContentsMargins(0, 0, 0, 0);
     middleLay->setSpacing(5);
     {
       middleLay->addWidget(categoryList, 0);
@@ -317,7 +317,7 @@ QFrame *OutputSettingsPopup::createPanel(bool isPreview) {
     m_moreBox   = createMoreSettingsBox();
   }
   QVBoxLayout *lay = new QVBoxLayout();
-  lay->setMargin(5);
+  lay->setContentsMargins(5, 5, 5, 5);
   lay->setSpacing(3);
   {
     lay->addWidget(m_cameraLabel, 0);
@@ -325,7 +325,7 @@ QFrame *OutputSettingsPopup::createPanel(bool isPreview) {
     lay->addSpacing(10);
 
     QHBoxLayout *colorLabelLay = new QHBoxLayout();
-    colorLabelLay->setMargin(0);
+    colorLabelLay->setContentsMargins(0, 0, 0, 0);
     colorLabelLay->setSpacing(0);
     {
       colorLabelLay->addWidget(m_colorLabel, 0);
@@ -391,12 +391,12 @@ QFrame *OutputSettingsPopup::createCameraSettingsBox(bool isPreview) {
   //-----
 
   QVBoxLayout *lay = new QVBoxLayout();
-  lay->setMargin(10);
+  lay->setContentsMargins(10, 10, 10, 10);
   lay->setSpacing(10);
   {
     // Output Camera
     QHBoxLayout *outCamLay = new QHBoxLayout();
-    outCamLay->setMargin(0);
+    outCamLay->setContentsMargins(0, 0, 0, 0);
     outCamLay->setSpacing(5);
     {
       outCamLay->addWidget(new QLabel(tr("Output Camera:"), this), 0);
@@ -407,9 +407,11 @@ QFrame *OutputSettingsPopup::createCameraSettingsBox(bool isPreview) {
 
     if (!isPreview) {
       QVBoxLayout *camParamLay = new QVBoxLayout();
-      camParamLay->setMargin(5);
+      camParamLay->setContentsMargins(5, 5, 5, 5);
       camParamLay->setSpacing(0);
-      { camParamLay->addWidget(m_cameraSettings); }
+      {
+        camParamLay->addWidget(m_cameraSettings);
+      }
       cameraParametersBox->setLayout(camParamLay);
 
       lay->addWidget(cameraParametersBox);
@@ -417,7 +419,7 @@ QFrame *OutputSettingsPopup::createCameraSettingsBox(bool isPreview) {
 
     // Frame start/end
     QGridLayout *frameShrinkLay = new QGridLayout();
-    frameShrinkLay->setMargin(0);
+    frameShrinkLay->setContentsMargins(0, 0, 0, 0);
     frameShrinkLay->setHorizontalSpacing(5);
     frameShrinkLay->setVerticalSpacing(10);
     {
@@ -515,7 +517,7 @@ QFrame *OutputSettingsPopup::createColorSettingsBox(bool isPreview) {
   }
 
   QGridLayout *gridLay = new QGridLayout();
-  gridLay->setMargin(5);
+  gridLay->setContentsMargins(5, 5, 5, 5);
   gridLay->setHorizontalSpacing(5);
   gridLay->setVerticalSpacing(10);
   {
@@ -607,12 +609,12 @@ QFrame *OutputSettingsPopup::createFileSettingsBox(bool isPreview) {
   //-----
 
   QVBoxLayout *lay = new QVBoxLayout();
-  lay->setMargin(10);
+  lay->setContentsMargins(10, 10, 10, 10);
   lay->setSpacing(10);
   {
     if (!isPreview) {
       QGridLayout *upperGridLay = new QGridLayout();
-      upperGridLay->setMargin(0);
+      upperGridLay->setContentsMargins(0, 0, 0, 0);
       upperGridLay->setHorizontalSpacing(5);
       upperGridLay->setVerticalSpacing(10);
       {
@@ -634,7 +636,7 @@ QFrame *OutputSettingsPopup::createFileSettingsBox(bool isPreview) {
     }
 
     QGridLayout *bottomGridLay = new QGridLayout();
-    bottomGridLay->setMargin(0);
+    bottomGridLay->setContentsMargins(0, 0, 0, 0);
     bottomGridLay->setHorizontalSpacing(5);
     bottomGridLay->setVerticalSpacing(10);
     {
@@ -739,7 +741,7 @@ QFrame *OutputSettingsPopup::createMoreSettingsBox() {
   //-----
 
   QGridLayout *lay = new QGridLayout();
-  lay->setMargin(5);
+  lay->setContentsMargins(5, 5, 5, 5);
   lay->setHorizontalSpacing(5);
   lay->setVerticalSpacing(10);
   {
@@ -1074,14 +1076,7 @@ void OutputSettingsPopup::updateField() {
   // clapperboard
   BoardSettings *boardSettings = prop->getBoardSettings();
   m_addBoard->setChecked(boardSettings->isActive());
-  // clapperboard is only available with movie formats
-  if (isMovieType(m_fileFormat->currentText().toStdString())) {
-    m_addBoard->setEnabled(true);
-    m_boardSettingsBtn->setEnabled(m_addBoard->isChecked());
-  } else {
-    m_addBoard->setEnabled(false);
-    m_boardSettingsBtn->setEnabled(false);
-  }
+  m_boardSettingsBtn->setEnabled(m_addBoard->isChecked());
 }
 
 //-----------------------------------------------------------------------------
@@ -1202,14 +1197,7 @@ void OutputSettingsPopup::onFormatChanged(const QString &str) {
     if (wasMultiRenderInvalid) m_threadsComboOm->setCurrentIndex(2);
   }
 
-  // clapperboard is only available with movie formats
-  if (isMovieType(str.toStdString())) {
-    m_addBoard->setEnabled(true);
-    m_boardSettingsBtn->setEnabled(m_addBoard->isChecked());
-  } else {
-    m_addBoard->setEnabled(false);
-    m_boardSettingsBtn->setEnabled(false);
-  }
+  m_boardSettingsBtn->setEnabled(m_addBoard->isChecked());
 }
 
 //-----------------------------------------------------------------------------

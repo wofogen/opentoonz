@@ -93,6 +93,7 @@ using namespace DVGui;
 
 TEnv::IntVar EnvSoftwareCurrentFontSize("SoftwareCurrentFontSize", 12);
 
+// These are the same as the default values. See tenv.cpp and tversion.h
 const char *rootVarName     = "TOONZROOT";
 const char *systemVarPrefix = "TOONZ";
 
@@ -402,7 +403,7 @@ int main(int argc, char *argv[]) {
 
   // Enable to render smooth icons on high dpi monitors
   a.setAttribute(Qt::AA_UseHighDpiPixmaps);
-#if defined(_WIN32) && QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
+#if defined(_WIN32)
   // Compress tablet events with application attributes instead of implementing
   // the delay-timer by ourselves
   a.setAttribute(Qt::AA_CompressHighFrequencyEvents);
@@ -410,6 +411,7 @@ int main(int argc, char *argv[]) {
 #endif
 
 #ifdef _WIN32
+  // BUG_WORKAROUND: #20230627
   // This attribute is set to make menubar icon to be always (16 x devPixRatio).
   // Without this attribute the menu bar icon size becomes the same as tool bar
   // when Windows scale is in 125%. Currently hiding the menu bar icon is done
@@ -435,19 +437,26 @@ int main(int argc, char *argv[]) {
   }
 #endif
 
-  // Set icon theme search paths
-  QStringList themeSearchPathsList = {":/icons"};
-  QIcon::setThemeSearchPaths(themeSearchPathsList);
-  // qDebug() << "All icon theme search paths:" << QIcon::themeSearchPaths();
-
   // Set show icons in menus flag (use iconVisibleInMenu to disable selectively)
   QApplication::instance()->setAttribute(Qt::AA_DontShowIconsInMenus, false);
 
   TEnv::setApplicationFileName(argv[0]);
 
-  // splash screen
-  QPixmap splashPixmap = QIcon(":Resources/splash.svg").pixmap(QSize(610, 344));
+// splash screen (override with local file if present)
+QString exeDir = QCoreApplication::applicationDirPath();
+QString localSplashPath = QDir(exeDir).filePath("splash.svg");
 
+QPixmap splashPixmap;
+
+if (QFileInfo(localSplashPath).exists() && QFileInfo(localSplashPath).isFile()) {
+  splashPixmap = QIcon(localSplashPath).pixmap(QSize(610, 344));
+  if (splashPixmap.isNull()) {
+    // fallback if loading fails
+    splashPixmap = QIcon(":Resources/splash.svg").pixmap(QSize(610, 344));
+  }
+} else {
+  splashPixmap = QIcon(":Resources/splash.svg").pixmap(QSize(610, 344));
+}
 #ifdef _WIN32
   QFont font("Segoe UI", -1);
 #else
@@ -491,11 +500,11 @@ int main(int argc, char *argv[]) {
   TBigMemoryManager::instance()->setRunOutOfContiguousMemoryHandler(
       &toonzRunOutOfContMemHandler);
 
-  // Toonz environment
-  initToonzEnv(argumentPathValues);
-
   // Setup third party
   ThirdParty::initialize();
+
+  // Toonz environment
+  initToonzEnv(argumentPathValues);
 
   // prepare for 30bit display
   if (Preferences::instance()->is30bitDisplayEnabled()) {
@@ -621,11 +630,6 @@ int main(int argc, char *argv[]) {
                      Qt::white);
   a.processEvents();
 
-  // Set default start icon theme
-  QIcon::setThemeName(Preferences::instance()->getIconTheme() ? "dark"
-                                                              : "light");
-  // qDebug() << "Icon theme name:" << QIcon::themeName();
-
   // stile
   QApplication::setStyle("windows");
 
@@ -640,6 +644,10 @@ int main(int argc, char *argv[]) {
   splash.showMessage(offsetStr + "Initializing OpenToonz ...", Qt::AlignCenter,
                      Qt::white);
   a.processEvents();
+
+  // Initialize ThemeManager before TApp
+  auto &themeManager = ThemeManager::getInstance();
+  themeManager.initialize();
 
   TTool::setApplication(TApp::instance());
   TApp::instance()->init();
@@ -670,8 +678,8 @@ int main(int argc, char *argv[]) {
     // load script
     if (TFileStatus(loadFilePath).doesExist()) {
       // find project for this script file
-      TProjectManager *pm    = TProjectManager::instance();
-      TProjectP sceneProject = pm->loadSceneProject(loadFilePath);
+      TProjectManager *pm = TProjectManager::instance();
+      auto sceneProject   = pm->loadSceneProject(loadFilePath);
       TFilePath oldProjectPath;
       if (!sceneProject) {
         std::cerr << QObject::tr(
@@ -712,13 +720,13 @@ int main(int argc, char *argv[]) {
     QWindowsWindowFunctions::setHasBorderInFullScreen(w.windowHandle(), true);
 #endif
 
-    // Qt have started to support Windows Ink from 5.12.
-    // Unlike WinTab API used in Qt 5.9 the tablet behaviors are different and
-    // are (at least, for OT) problematic. The customized Qt5.15.2 are made with
-    // cherry-picking the WinTab feature to be officially introduced from 6.0.
-    // See https://github.com/shun-iwasawa/qt5/releases/tag/v5.15.2_wintab for
-    // details. The following feature can only be used with the customized Qt,
-    // with WITH_WINTAB build option, and in Windows-x64 build.
+  // Qt have started to support Windows Ink from 5.12.
+  // Unlike WinTab API used in Qt 5.9 the tablet behaviors are different and
+  // are (at least, for OT) problematic. The customized Qt5.15.2 are made with
+  // cherry-picking the WinTab feature to be officially introduced from 6.0.
+  // See https://github.com/shun-iwasawa/qt5/releases/tag/v5.15.2_wintab for
+  // details. The following feature can only be used with the customized Qt,
+  // with WITH_WINTAB build option, and in Windows-x64 build.
 
 #ifdef WITH_WINTAB
   bool useQtNativeWinInk = Preferences::instance()->isQtNativeWinInkEnabled();
@@ -733,7 +741,11 @@ int main(int argc, char *argv[]) {
   QString currentStyle = Preferences::instance()->getCurrentStyleSheet();
   a.setStyleSheet(currentStyle);
 
-  w.setWindowTitle(QString::fromStdString(TEnv::getApplicationFullName()));
+  // Parse inital stylesheet in ThemeManager
+  themeManager.parseCustomPropertiesFromStylesheet(currentStyle);
+
+  // w.setWindowTitle(QString::fromStdString(TEnv::getApplicationFullName()));
+  w.changeWindowTitle();
   if (TEnv::getIsPortable()) {
     splash.showMessage(offsetStr + "Starting OpenToonz Portable ...",
                        Qt::AlignCenter, Qt::white);
@@ -783,7 +795,6 @@ int main(int argc, char *argv[]) {
     splash.showMessage(
         QString("Loading file '") + loadFilePath.getQString() + "'...",
         Qt::AlignCenter, Qt::white);
-    loadFilePath = loadFilePath.withType("tnz");
     if (TFileStatus(loadFilePath).doesExist()) IoCmd::loadScene(loadFilePath);
   }
 

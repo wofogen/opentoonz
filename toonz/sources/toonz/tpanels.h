@@ -31,6 +31,7 @@ class FxSettings;
 class VectorGuidedDrawingPane;
 class FxSelection;
 class StageObjectSelection;
+class LocatorPopup;
 
 //=========================================================
 // PaletteViewerPanel
@@ -68,7 +69,7 @@ protected slots:
   void onPaletteSwitched();
   void onFreezeButtonToggled(bool isFrozen);
   void onSceneSwitched();
-  void onPreferenceChanged(const QString &prefName);
+  void onPreferenceChanged(const QString &prefName) override;
 };
 
 //=========================================================
@@ -193,6 +194,7 @@ protected slots:
   void onDeleteFxs(const FxSelection *);
   void onDeleteStageObjects(const StageObjectSelection *);
   void onColumnPaste(const QList<TXshColumnP> &);
+  void onPreferenceChanged(const QString &);
 };
 
 //=========================================================
@@ -344,6 +346,19 @@ class VectorGuidedDrawingPanel final : public TPanel {
 
 public:
   VectorGuidedDrawingPanel(QWidget *parent);
+};
+
+//=========================================================
+// LocatorPanel
+//---------------------------------------------------------
+
+class LocatorPanel final : public TPanel {
+  Q_OBJECT
+
+  LocatorPopup *m_locator;
+
+public:
+  LocatorPanel(QWidget *parent);
 };
 
 #endif

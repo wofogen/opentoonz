@@ -200,7 +200,7 @@ StopMotionController::StopMotionController(QWidget *parent) : QWidget(parent) {
   m_saveInFolderPopup = new PencilTestSaveInFolderPopup(this);
   m_cameraListCombo   = new QComboBox(this);
   m_resolutionCombo   = new QComboBox(this);
-  m_resolutionCombo->setFixedWidth(fontMetrics().width("0000 x 0000") + 25);
+  m_resolutionCombo->setFixedWidth(fontMetrics().horizontalAdvance("0000 x 0000") + 25);
   m_resolutionLabel                 = new QLabel(tr("Resolution: "), this);
   m_cameraStatusLabel               = new QLabel(tr("Camera Status"), this);
   QPushButton *refreshCamListButton = new QPushButton(tr("Refresh"), this);
@@ -338,12 +338,12 @@ StopMotionController::StopMotionController(QWidget *parent) : QWidget(parent) {
 
   QVBoxLayout *controlLayout = new QVBoxLayout();
   controlLayout->setSpacing(0);
-  controlLayout->setMargin(5);
+  controlLayout->setContentsMargins(5, 5, 5, 5);
 
   {
     {
       QGridLayout *camLay = new QGridLayout();
-      camLay->setMargin(0);
+      camLay->setContentsMargins(0, 0, 0, 0);
       camLay->setSpacing(3);
       {
         camLay->addWidget(new QLabel(tr("Camera:"), this), 0, 0,
@@ -365,18 +365,18 @@ StopMotionController::StopMotionController(QWidget *parent) : QWidget(parent) {
       controlLayout->addLayout(camLay, 0);
 
       QVBoxLayout *fileLay = new QVBoxLayout();
-      fileLay->setMargin(8);
+      fileLay->setContentsMargins(8, 8, 8, 8);
       fileLay->setSpacing(5);
       {
         QGridLayout *levelLay = new QGridLayout();
-        levelLay->setMargin(0);
+        levelLay->setContentsMargins(0, 0, 0, 0);
         levelLay->setHorizontalSpacing(3);
         levelLay->setVerticalSpacing(5);
         {
           levelLay->addWidget(new QLabel(tr("Name:"), this), 0, 0,
                               Qt::AlignRight);
           QHBoxLayout *nameLay = new QHBoxLayout();
-          nameLay->setMargin(0);
+          nameLay->setContentsMargins(0, 0, 0, 0);
           nameLay->setSpacing(2);
           {
             nameLay->addWidget(m_previousLevelButton, 0);
@@ -390,7 +390,7 @@ StopMotionController::StopMotionController(QWidget *parent) : QWidget(parent) {
                               Qt::AlignRight);
 
           QHBoxLayout *frameLay = new QHBoxLayout();
-          frameLay->setMargin(0);
+          frameLay->setContentsMargins(0, 0, 0, 0);
           frameLay->setSpacing(2);
           {
             frameLay->addWidget(m_previousFrameButton, 0);
@@ -406,7 +406,7 @@ StopMotionController::StopMotionController(QWidget *parent) : QWidget(parent) {
         fileLay->addLayout(levelLay, 0);
 
         QHBoxLayout *fileTypeLay = new QHBoxLayout();
-        fileTypeLay->setMargin(0);
+        fileTypeLay->setContentsMargins(0, 0, 0, 0);
         fileTypeLay->setSpacing(3);
         {
           fileTypeLay->addWidget(new QLabel(tr("File Type:"), this), 0);
@@ -417,7 +417,7 @@ StopMotionController::StopMotionController(QWidget *parent) : QWidget(parent) {
         fileLay->addLayout(fileTypeLay, 0);
 
         QHBoxLayout *saveInLay = new QHBoxLayout();
-        saveInLay->setMargin(0);
+        saveInLay->setContentsMargins(0, 0, 0, 0);
         saveInLay->setSpacing(3);
         {
           saveInLay->addWidget(new QLabel(tr("Save In:"), this), 0);
@@ -430,14 +430,14 @@ StopMotionController::StopMotionController(QWidget *parent) : QWidget(parent) {
       controlLayout->addWidget(fileFrame, 0);
 
       QGridLayout *displayLay = new QGridLayout();
-      displayLay->setMargin(8);
+      displayLay->setContentsMargins(8, 8, 8, 8);
       displayLay->setHorizontalSpacing(3);
       displayLay->setVerticalSpacing(5);
       {
         displayLay->addWidget(new QLabel(tr("XSheet Frame:"), this), 0, 0,
                               Qt::AlignRight);
         QHBoxLayout *xsheetLay = new QHBoxLayout();
-        xsheetLay->setMargin(0);
+        xsheetLay->setContentsMargins(0, 0, 0, 0);
         xsheetLay->setSpacing(2);
         {
           xsheetLay->addWidget(m_previousXSheetFrameButton, Qt::AlignLeft);
@@ -496,14 +496,14 @@ StopMotionController::StopMotionController(QWidget *parent) : QWidget(parent) {
     m_pictureStyleCombo   = new QComboBox(this);
     m_cameraSettingsLabel = new QLabel(tr("Camera Model"), this);
     m_cameraModeLabel     = new QLabel(tr("Camera Mode"), this);
-    m_exposureCombo->setFixedWidth(fontMetrics().width("000000") + 25);
+    m_exposureCombo->setFixedWidth(fontMetrics().horizontalAdvance("000000") + 25);
     QVBoxLayout *settingsLayout = new QVBoxLayout;
     settingsLayout->setSpacing(0);
-    settingsLayout->setMargin(5);
+    settingsLayout->setContentsMargins(5, 5, 5, 5);
 
     QGridLayout *settingsGridLayout = new QGridLayout;
     {
-      settingsGridLayout->setMargin(0);
+      settingsGridLayout->setContentsMargins(0, 0, 0, 0);
       settingsGridLayout->setSpacing(3);
       settingsGridLayout->addWidget(m_cameraSettingsLabel, 0, 0, 1, 2,
                                     Qt::AlignCenter);
@@ -572,7 +572,7 @@ StopMotionController::StopMotionController(QWidget *parent) : QWidget(parent) {
 
     QVBoxLayout *webcamSettingsLayout = new QVBoxLayout;
     webcamSettingsLayout->setSpacing(0);
-    webcamSettingsLayout->setMargin(5);
+    webcamSettingsLayout->setContentsMargins(5, 5, 5, 5);
     QHBoxLayout *webcamLabelLayout = new QHBoxLayout();
     m_webcamLabel = new QLabel(tr("insert webcam name here"), this);
     webcamLabelLayout->addStretch();
@@ -597,7 +597,7 @@ StopMotionController::StopMotionController(QWidget *parent) : QWidget(parent) {
     webcamSettingsLayout->addSpacing(5);
 
     QGridLayout *webcamGridLay = new QGridLayout();
-    webcamGridLay->setMargin(0);
+    webcamGridLay->setContentsMargins(0, 0, 0, 0);
     webcamGridLay->setSpacing(3);
     webcamGridLay->setColumnStretch(0, 0);
     webcamGridLay->setColumnStretch(1, 1);
@@ -732,7 +732,7 @@ StopMotionController::StopMotionController(QWidget *parent) : QWidget(parent) {
     QVBoxLayout *optionsOutsideLayout = new QVBoxLayout;
     QGridLayout *optionsLayout        = new QGridLayout;
     optionsLayout->setSpacing(3);
-    optionsLayout->setMargin(5);
+    optionsLayout->setContentsMargins(5, 5, 5, 5);
     QGridLayout *webcamLayout   = new QGridLayout;
     QGridLayout *dslrLayout     = new QGridLayout;
     QGridLayout *checkboxLayout = new QGridLayout;
@@ -753,7 +753,7 @@ StopMotionController::StopMotionController(QWidget *parent) : QWidget(parent) {
     webcamBox->hide();
 
     QGridLayout *timerLay = new QGridLayout();
-    timerLay->setMargin(8);
+    timerLay->setContentsMargins(8, 8, 8, 8);
     timerLay->setHorizontalSpacing(3);
     timerLay->setVerticalSpacing(5);
     {
@@ -911,11 +911,11 @@ StopMotionController::StopMotionController(QWidget *parent) : QWidget(parent) {
     controlButtonFrame->setLayout(controlButtonLay);
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
-    mainLayout->setMargin(0);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setSpacing(0);
     {
       QHBoxLayout *hLayout = new QHBoxLayout;
-      hLayout->setMargin(0);
+      hLayout->setContentsMargins(0, 0, 0, 0);
       {
         hLayout->addSpacing(4);
         hLayout->addWidget(m_tabBar);
@@ -923,8 +923,8 @@ StopMotionController::StopMotionController(QWidget *parent) : QWidget(parent) {
       }
       m_tabBarContainer->setLayout(hLayout);
 
-      mainLayout->addWidget(m_tabBarContainer, 0, 0);
-      mainLayout->addWidget(m_stackedChooser, 1, 0);
+      mainLayout->addWidget(m_tabBarContainer, 0);
+      mainLayout->addWidget(m_stackedChooser, 1);
       mainLayout->addWidget(opacityFrame, 0);
       mainLayout->addWidget(controlButtonFrame, 0);
       setLayout(mainLayout);
@@ -1619,7 +1619,7 @@ void StopMotionController::refreshCameraList(QString activeCamera) {
         std::string name = webcams.at(c).deviceName().toStdString();
         QString camDesc  = webcams.at(c).description();
         m_cameraListCombo->addItem(camDesc);
-        maxTextLength = std::max(maxTextLength, fontMetrics().width(camDesc));
+        maxTextLength = std::max(maxTextLength, fontMetrics().horizontalAdvance(camDesc));
       }
     }
 #ifdef WITH_CANON

@@ -416,7 +416,7 @@ PlasticToolOptionsBox::PlasticToolOptionsBox(QWidget *parent, TTool *tool,
         new GenericToolOptionsBox(0, tool, pltHandle, m, 0, false);
 
   meshifyButton->setFixedHeight(20);
-  int buttonWidth = fontMetrics().width(meshifyButton->text()) + 20;
+  int buttonWidth = fontMetrics().horizontalAdvance(meshifyButton->text()) + 20;
   meshifyButton->setFixedWidth(buttonWidth);
   QAction *meshifyAction =
       CommandManager::instance()->getAction("A_ToolOption_Meshify");
@@ -642,7 +642,7 @@ PlasticTool::PlasticTool()
     , m_showSkeletonOS(true)
     , m_recompileOnMouseRelease(false) {
   // And now, a little trick about tool binding
-  bind(TTool::AllImages);   // Attach the tool to all types :)
+  bind(TTool::AllImages | TTool::EmptyTarget);   // Attach the tool to all types :)
   bind(TTool::MeshLevels);  // But disable it for all but meshes :0
 
   // This little trick is needed to associate the tool to common levels (the
@@ -926,7 +926,7 @@ void PlasticTool::onChange() {
   }
 
   // Passing through Qt's event system to compress repaints in a single one
-  TTool::Viewer *viewer = getViewer();
+  TToolViewer *viewer = getViewer();
   if (viewer)                 // This goes through paintEvent(),
     viewer->invalidateAll();  // \a unlike TTool::invalidate()
 }
@@ -942,7 +942,7 @@ void PlasticTool::onChange(const TParamChange &pc) {
 //------------------------------------------------------------------------
 
 void PlasticTool::onSetViewer() {
-  Viewer *viewer = getViewer();
+  TToolViewer *viewer = getViewer();
   if (viewer) {
     PlasticVisualSettings &pvs =
         viewer->visualSettings().m_plasticVisualSettings;
@@ -997,7 +997,7 @@ void PlasticTool::onDeactivate() {
                    SIGNAL(xsheetSwitched()), this, SLOT(onXsheetChanged())),
   assert(ret);
 
-  Viewer *viewer = getViewer();
+  TToolViewer *viewer = getViewer();
   if (viewer) {
     viewer->visualSettings().m_plasticVisualSettings = PlasticVisualSettings();
     // Only the mesh visibility is not reset in order to enable to keep the mesh

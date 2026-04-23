@@ -192,7 +192,7 @@ Cleanup後にデフォルトPaletteの内容を追加する仕様、Preferences�
 void addCleanupDefaultPalette(TXshSimpleLevelP sl) {
   /*--- CleanupデフォルトパレットはStudioPaletteフォルダ内に入れる ---*/
   TFilePath palettePath =
-      ToonzFolder::getStudioPaletteFolder() + "cleanup_default.tpl";
+      ToonzFolder::getStudioPaletteFolder() + "Global Palettes\\Default Palettes\\Cleanup_Palette.tpl";
   TFileStatus pfs(palettePath);
 
   if (!pfs.doesExist() || !pfs.isReadable()) {
@@ -316,7 +316,7 @@ CleanupPopup::CleanupPopup()
 
   //---layout
   QVBoxLayout *mainLayout = new QVBoxLayout();
-  mainLayout->setMargin(5);
+  mainLayout->setContentsMargins(5, 5, 5, 5);
   mainLayout->setSpacing(5);
   {
     mainLayout->addWidget(m_progressLabel, 0);
@@ -325,13 +325,13 @@ CleanupPopup::CleanupPopup()
     mainLayout->addWidget(m_cleanupQuestionLabel);
 
     QVBoxLayout *imgBoxLay = new QVBoxLayout();
-    imgBoxLay->setMargin(5);
+    imgBoxLay->setContentsMargins(5, 5, 5, 5);
     { imgBoxLay->addWidget(m_imageViewer); }
     m_imgViewBox->setLayout(imgBoxLay);
     mainLayout->addWidget(m_imgViewBox, 1);
 
     QHBoxLayout *buttonLay = new QHBoxLayout();
-    buttonLay->setMargin(0);
+    buttonLay->setContentsMargins(0, 0, 0, 0);
     buttonLay->setSpacing(5);
     {
       buttonLay->addWidget(m_cleanupButton);
@@ -723,12 +723,16 @@ bool CleanupPopup::analyzeCleanupList() {
           lev->setPath(scannedPath, true);
           lev->clearFrames();
           lev->setType(OVL_XSHLEVEL);  // OVL_XSHLEVEL
-          lev->setPalette(0);
+
+          // change of CurrentLevelPalette would trigger the update of column icon
+          // (would use level's Palette)
+          // So we should reset currentLevelPalette first here(do disconnect), to avoid nullptr
           if (lev == TApp::instance()->getCurrentLevel()->getLevel())
             TApp::instance()
                 ->getPaletteController()
                 ->getCurrentLevelPalette()
                 ->setPalette(0);
+          lev->setPalette(0);
 
           lev->load();
           int i, frameCount = lev->getFrameCount();

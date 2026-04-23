@@ -83,6 +83,8 @@ private:
 private:
   void rebuildFormatsList();
   QList<ComboBoxItem> buildFontStyleList() const;
+  QList<ComboBoxItem> buildSvnUserList() const;
+  QList<ComboBoxItem> buildSvnRepList() const;
 
   QWidget* createUI(
       PreferencesItemId id,
@@ -105,7 +107,7 @@ private:
   QWidget* createVisualizationPage();
   QWidget* createLoadingPage();
   QWidget* createSavingPage();
-  QWidget* createImportExportPage();
+  QWidget* createCodecPage();
   QWidget* createAutoLipSyncPage();
   QWidget* createDrawingPage();
   QWidget* createToolsPage();
@@ -116,7 +118,9 @@ private:
   QWidget* createColorsPage();
   QWidget* createVersionControlPage();
   QWidget* createTouchTabletPage();
-
+#ifdef _WIN32
+  QWidget* createAddonsPage();
+#endif
   //--- callbacks ---
   // General
   void onAutoSaveChanged();
@@ -125,7 +129,6 @@ private:
   void onPathAliasPriorityChanged();
   // Interface
   void onStyleSheetTypeChanged();
-  void onIconThemeChanged();
   void onPixelsOnlyChanged();
   void beforeUnitChanged();
   void onUnitChanged();
@@ -139,6 +142,8 @@ private:
   // Xsheet
   void onShowKeyframesOnCellAreaChanged();
   void onShowXSheetToolbarClicked();
+  void onUnifyColumnVisibilityTogglesChanged();
+  void onShowXsheetBreadcrumbsClicked();
   // Animation
   void onModifyExpressionOnMovingReferencesChanged();
   // Preview
@@ -159,6 +164,8 @@ private slots:
   void onChange();
   void onColorFieldChanged(const TPixel32&, bool);
 
+  void onAnimateToolChanged();
+
   void onAutoSaveExternallyChanged();
   void onAutoSavePeriodExternallyChanged();
   void onProjectRootChanged();
@@ -175,6 +182,8 @@ private slots:
   void onEditLevelFormat();
   void onLevelFormatEdited();
   void onImportPolicyExternallyChanged(int policy);
+  void onRenamePolicyExternallyChanged(int policy);
+  void onConvertPolicyExternallyChanged(int policy);
 };
 
 //**********************************************************************************

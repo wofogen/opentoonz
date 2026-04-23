@@ -59,8 +59,7 @@ public:
     if (!folderPath.isEmpty())
       folderPath = folderPath.getParentDir();
     else {
-      TProject *currentProject =
-          TProjectManager::instance()->getCurrentProject().getPointer();
+      auto currentProject = TProjectManager::instance()->getCurrentProject();
       if (currentProject)
         folderPath =
             currentProject->decode(currentProject->getFolder(TProject::Inputs));
@@ -347,15 +346,7 @@ void CleanupSettingsModel::commitChanges(int action) {
     m_backupParams.assign(currentParams, false);
 
     currentParams->setDirtyFlag(true);
-
-    // Deal with scene stuff
-    if (m_clnPath.isEmpty()) {
-      TApp::instance()->getCurrentScene()->setDirtyFlag(
-          true);  // This should be moved outside... sadly not supported at the
-                  // moment...
-      CleanupParameters::GlobalParameters.assign(
-          currentParams);  // The global settings are being changed
-    }
+    TApp::instance()->getCurrentScene()->setDirtyFlag(true);
   }
 
   // Perform actions
@@ -460,14 +451,28 @@ void CleanupSettingsModel::onSceneSwitched() {
   // copy them there.
   CleanupParameters *params = getCurrentParameters();
   CleanupParameters::GlobalParameters.assign(params);
-
+  
   // The cleanupper always uses current cleanup parameters. It has to be
   // specified somewhere,
   // so let's do it once here.
   TCleanupper::instance()->setParameters(params);
 
   // Finally, send notifications, deal with backups, etc.
-  restoreGlobalSettings();
+
+  // Make sure that the current cleanup palette is set to currentParams' palette
+  // This might refresh the StyleEditor
+  TApp::instance()
+      ->getPaletteController()
+      ->getCurrentCleanupPalette()
+      ->setPalette(params->m_cleanupPalette.getPointer());
+
+  m_clnPath = TFilePath();  // This Path won't be stored in scene or project
+  m_backupParams.assign(params, false);
+
+  if (m_previewersCount > 0 || m_cameraTestsCount > 0) rebuildPreview();
+
+  emit modelChanged(false);
+  emit clnLoaded();
 }
 
 //-----------------------------------------------------------------------
@@ -581,12 +586,13 @@ void CleanupSettingsModel::restoreGlobalSettings() {
   currentParams->assign(&CleanupParameters::GlobalParameters);
 
   // Make sure that the current cleanup palette is set to currentParams' palette
+  // This would refresh the StyleEditor
   TApp::instance()
       ->getPaletteController()
       ->getCurrentCleanupPalette()
       ->setPalette(currentParams->m_cleanupPalette.getPointer());
 
-  m_clnPath = TFilePath();
+  m_clnPath = TFilePath();  // This Path won't be stored in scene or project
   m_backupParams.assign(currentParams, false);
 
   if (m_previewersCount > 0 || m_cameraTestsCount > 0) rebuildPreview();
@@ -661,22 +667,12 @@ bool CleanupSettingsModel::loadSettings(const TFilePath &clnPath) {
   CleanupParameters *cp = getCurrentParameters();
   if (!loadSettings(cp, clnPath)) return false;
 
-  // The same as restoreGlobalSettings()
   TApp::instance()
       ->getPaletteController()
       ->getCurrentCleanupPalette()
       ->setPalette(cp->m_cleanupPalette.getPointer());
 
-  /*---
-   * LoadSettingsPopupからこの関数が呼ばれたとき、ロードしたパラメータをGlobal設定に格納する---*/
-  if (m_clnPath.isEmpty()) {
-    TApp::instance()->getCurrentScene()->setDirtyFlag(
-        true);  // This should be moved outside... sadly not supported at the
-                // moment...
-    CleanupParameters::GlobalParameters.assign(
-        cp);  // The global settings are being changed
-  }
-
+  TApp::instance()->getCurrentScene()->setDirtyFlag(true);
   m_backupParams.assign(cp, false);
 
   if (m_previewersCount > 0 || m_cameraTestsCount > 0) rebuildPreview();

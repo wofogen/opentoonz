@@ -14,6 +14,9 @@
 #include "tstroke.h"
 #include "tregion.h"
 
+// TnzQt includes
+#include "toonzqt/selectioncommandids.h"
+
 // Qt includes
 #include <QSet>
 
@@ -240,7 +243,7 @@ class VectorChangeThicknessTool final : public DragTool {
   TPointD m_curPos, m_firstPos;
   std::map<int, std::vector<double>> m_strokesThickness;
   double m_thicknessChange;
-
+  bool m_isIncrementalMode;// Or Fixed Mode
   std::unique_ptr<UndoChangeStrokes> m_undo;
 
 public:
@@ -251,6 +254,8 @@ public:
   void setThicknessChange(double value) { m_thicknessChange = value; }
 
   void changeImageThickness(TVectorImage &vi, double newThickness);
+  void setImageThickness(TVectorImage &vi, double newThickness);
+
   void addUndo();
 
   void leftButtonDown(const TPointD &pos, const TMouseEvent &e) override;
@@ -304,6 +309,7 @@ public:
   bool isSelectionEmpty() override;
 
   void computeBBox() override;
+  void notifyImageChanged() override;
 
   TPropertyGroup *getProperties(int targetType) override;
 
@@ -348,11 +354,17 @@ private:
   public:
     AttachedLevelSelection(StrokeSelection &strokeSelection)
         : m_strokeSelection(strokeSelection) {}
-
+    
+    // Commands
     void selectNone() override {
       LevelSelection::selectNone(), m_strokeSelection.selectNone();
     }
-    void enableCommands() override { m_strokeSelection.enableCommands(); }
+    void enableCommands() override {
+      m_strokeSelection.enableCommands();
+      enableCommand(this, MI_SortWithPaletteOrder,
+                    &AttachedLevelSelection::sortWithPaletteOrder);
+    };
+    void sortWithPaletteOrder();
   };
 
 private:
